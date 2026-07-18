@@ -61,6 +61,7 @@
 
     function showPanel(slug, opts) {
       opts = opts || {};
+      slug = slug || "spinner-wheel"; // homepage shows the primary tool live
       panels.forEach(function (p) { p.hidden = true; });
       if (overview) overview.hidden = !!slug;
 
@@ -108,10 +109,8 @@
     // Sync initial state from the URL (handles a direct load of /dice-roller/
     // when index.html itself is what's cached, which shouldn't normally
     // happen on GitHub Pages but costs nothing to guard).
-    var initialSlug = window.location.pathname === "/" ? null : window.location.pathname.replace(/\//g, "");
-    if (initialSlug && panelFor(initialSlug)) {
-      showPanel(initialSlug, { skipFocus: true });
-    }
+    var initialSlug = window.location.pathname.replace(/\//g, "");
+    showPanel(panelFor(initialSlug) ? initialSlug : null, { skipFocus: true });
   }
 
   // ---------------------------------------------------------- hero flourish --
