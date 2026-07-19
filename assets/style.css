@@ -832,7 +832,7 @@ textarea { min-height: 140px; resize: vertical; font-family: var(--font-mono); f
 /* the erabbit mark: last thing on the page, flush to the corner, no dead
    space below or to its right. Must stay a direct body child AFTER
    </footer> — never nested inside the footer or any padded wrapper. */
-.erabbit-mark { display: block; width: 10px; margin: 14px 0 0 auto; line-height: 0; }
+.erabbit-mark { display: block; width: 10px; margin: 14px 0 0 auto; line-height: 0; cursor: default; }
 .erabbit-mark img { display: block; width: 10px; height: 10px; }
 
 /* --------------------------------------------------------- reduced motion */
