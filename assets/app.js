@@ -52,6 +52,7 @@
 
     var overview = document.getElementById("overview-panel");
     var navLinks = document.querySelectorAll("[data-panel-link]");
+    var hero = document.querySelector(".hero");
     var siteTitle = document.title.indexOf("|") !== -1 ? document.title.split("|").pop().trim() : document.title;
 
     function panelFor(slug) {
@@ -64,6 +65,9 @@
       slug = slug || "spinner-wheel"; // homepage shows the primary tool live
       panels.forEach(function (p) { p.hidden = true; });
       if (overview) overview.hidden = !!slug;
+      // Hide the tall marketing hero when a specific tool is shown so the tool
+      // sits right under the nav instead of below a banner.
+      if (hero) hero.hidden = !!slug;
 
       var target = panelFor(slug);
       if (target) {
