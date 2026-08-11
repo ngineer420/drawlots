@@ -23,6 +23,9 @@
   --lot-violet: #b185f0;
   --lot-mint: #3ddc97;
   --lot-gold: #f2d24b;
+  --lot-cobalt: #6b8cff;
+  --lot-berry: #ff6ba8;
+  --lot-teal: #2ec4b6;
 
   /* default accent (overridden per active tool via [data-tool]) */
   --accent: var(--lot-coral);
@@ -55,6 +58,9 @@
   --lot-violet: #7c4fdb;
   --lot-mint: #16875c;
   --lot-gold: #b38a12;
+  --lot-cobalt: #3355d4;
+  --lot-berry: #c2306b;
+  --lot-teal: #10796f;
   --accent-ink: #fff8ea;
 
   color-scheme: light;
@@ -75,6 +81,9 @@
     --lot-violet: #7c4fdb;
     --lot-mint: #16875c;
     --lot-gold: #b38a12;
+    --lot-cobalt: #3355d4;
+    --lot-berry: #c2306b;
+    --lot-teal: #10796f;
     --accent-ink: #fff8ea;
     color-scheme: light;
   }
@@ -87,8 +96,18 @@
 [data-tool="coin-flip"] { --accent: var(--lot-gold); }
 [data-tool="random-number-generator"] { --accent: var(--lot-sky); }
 [data-tool="team-generator"] { --accent: var(--lot-mint); }
+[data-tool="tournament-bracket"] { --accent: var(--lot-cobalt); }
+[data-tool="secret-santa"] { --accent: var(--lot-berry); }
+[data-tool="rota-builder"] { --accent: var(--lot-teal); }
 
 * { box-sizing: border-box; }
+
+/* The browser's own [hidden] rule is a bare element selector, so any class that
+   sets display beats it — .btn is display:inline-flex, and a button hidden by
+   script would otherwise stay on screen. That is exactly what happens to the
+   Secret Santa reveal button after it has been pressed, so hidden is made to
+   mean hidden. */
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 
 body {
@@ -768,6 +787,91 @@ textarea { min-height: 140px; resize: vertical; font-family: var(--font-mono); f
   border-radius: 8px;
 }
 
+/* ------------------------------------------------------------- bracket ui */
+
+/* The bracket is drawn as one SVG so that the connectors are real lines and
+   the whole sheet survives being printed. It is wider than a phone on any
+   draw worth having, so it scrolls sideways in its own box rather than
+   forcing the page to. */
+.bracket-wrap { overflow-x: auto; margin-top: 18px; }
+.bracket-wrap:empty { display: none; }
+.bracket-svg { display: block; min-width: 100%; height: auto; }
+.bracket-summary { color: var(--text-muted); font-size: 14px; margin: 10px 0 0; }
+.bracket-summary:empty { display: none; }
+
+.bracket-rule { stroke: var(--border); stroke-width: 1.5; }
+.bracket-link { fill: none; stroke: var(--border); stroke-width: 1.5; }
+.bracket-name { fill: var(--text); font-size: 14px; font-family: var(--font-body, inherit); }
+.bracket-advanced { fill: var(--text-muted); font-style: italic; }
+.bracket-seed { fill: var(--accent); font-size: 12px; font-weight: 700; }
+.bracket-bye { fill: var(--text-muted); font-size: 12px; font-style: italic; }
+.bracket-round-label {
+  fill: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------- santa ui */
+
+.santa-list { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }
+.santa-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+}
+.santa-who { font-weight: 700; font-size: 14.5px; flex: 0 0 auto; min-width: 90px; }
+.santa-row input[type="text"] { flex: 1 1 200px; font-family: var(--font-mono); font-size: 12.5px; }
+
+/* The reveal is the whole page for the person who opens their link, so it is
+   given the room to be exactly one thing. */
+.santa-reveal { text-align: center; padding: 26px 0 10px; }
+.santa-reveal-who { color: var(--text-muted); font-size: 16px; margin: 0 0 18px; }
+.santa-reveal-name {
+  font-size: clamp(30px, 9vw, 54px);
+  font-weight: 800;
+  color: var(--accent);
+  margin: 8px 0 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------------- rota ui */
+
+.rota-list { display: flex; flex-direction: column; gap: 6px; margin-top: 18px; }
+.rota-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  background: var(--surface-2);
+  border-radius: 8px;
+  padding: 7px 12px;
+}
+.rota-slot { color: var(--text-muted); font-size: 13.5px; flex: 0 0 34%; max-width: 200px; }
+.rota-who { font-size: 15px; font-weight: 600; }
+.rota-tally {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 18px;
+  padding: 0;
+}
+.rota-tally:empty { display: none; }
+.rota-tally li {
+  font-size: 13px;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 11px;
+}
+
 /* -------------------------------------------------------- share / copy ui */
 
 .share-row {
@@ -834,6 +938,57 @@ textarea { min-height: 140px; resize: vertical; font-family: var(--font-mono); f
    </footer> — never nested inside the footer or any padded wrapper. */
 .erabbit-mark { display: block; width: 10px; margin: 14px 0 0 auto; line-height: 0; cursor: default; }
 .erabbit-mark img { display: block; width: 10px; height: 10px; }
+
+/* ----------------------------------------------------------------- print */
+
+/* The bracket is the reason this block exists — it is a sheet you pin up and
+   write results on — but the rule is right for every tool here: printing a
+   decision tool should give you the decision, not the website around it. So
+   the nav, the hero, the form and the notes all go, and what is left is the
+   heading and the result.
+   Done by overriding the palette tokens rather than by restating colours on
+   every component, which means anything added later prints correctly without
+   anybody having to remember this block exists. */
+@media print {
+  /* On every element and marked important, rather than on :root, because the
+     per-tool accent is declared on the body itself ([data-tool="…"]) and the
+     themes on the root element — both of which outrank a plain :root rule for
+     the elements that matter. An important declaration beats a normal one
+     whatever its specificity, so this is the one form that reliably lands. */
+  * {
+    --surface: #ffffff !important;
+    --surface-2: #ffffff !important;
+    --surface-3: #ffffff !important;
+    --text: #000000 !important;
+    --text-muted: #444444 !important;
+    --border: #666666 !important;
+    --accent: #000000 !important;
+    --shadow-color: 0 0% 100% !important;
+  }
+
+  .site-header,
+  .hero,
+  .site-footer,
+  .content-section,
+  .share-row,
+  .btn-row,
+  .field,
+  .controls-row,
+  .tool-message,
+  .back-to-tools,
+  .erabbit-mark,
+  .lots-stage { display: none !important; }
+
+  body { background: #fff; color: #000; }
+  main, .panel, .wrap { margin: 0; padding: 0; max-width: none; }
+  .workspace { border: 0; padding: 0; background: none; box-shadow: none; }
+
+  /* On paper there is nowhere to scroll to, so the bracket has to be allowed
+     to use the full width of the sheet. */
+  .bracket-wrap { overflow: visible; }
+  .bracket-svg { width: 100%; }
+  .santa-row, .rota-row, .team-card { border: 1px solid #999; }
+}
 
 /* --------------------------------------------------------- reduced motion */
 

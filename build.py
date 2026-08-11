@@ -315,6 +315,153 @@ Drew</textarea>
     </div>
 """,
     ),
+    dict(
+        slug="tournament-bracket",
+        name="Tournament Bracket Generator",
+        tagline="Names in, a seeded knockout bracket out — byes and all.",
+        description="Free tournament bracket generator. Paste your entrants, get a printable single-elimination bracket with the byes given to the top seeds, random or listed seeding. No signup, entirely in your browser.",
+        icon='<path d="M4 5h5v6h6V5h5"/><path d="M9 11v8h6v-8"/><circle cx="12" cy="21" r="1.6"/>',
+        intro="Paste in everyone playing and get a proper single-elimination bracket — drawn at random or seeded in the order you listed, with the byes handed out the way a tournament actually hands them out. Print it and pin it up.",
+        how_to=[
+            "Paste or type the entrants, one per line.",
+            "Choose a random draw, or “as listed” if the order you typed is the seeding.",
+            "Click “Draw the bracket” — the sheet appears with every round and every line to fill in.",
+            "Print it, or copy the link to send the same entrant list to someone else.",
+        ],
+        faq=[
+            ("What happens when the number of entrants isn't a power of two?", "The bracket is expanded to the next power of two and the empty places become byes — a free walkover into round two. They are not scattered at random: they go to the top seeds, one each. With six entrants in a bracket of eight there are two byes, and they belong to seeds 1 and 2. With five entrants there are three, and seeds 1, 2 and 3 sit out the first round."),
+            ("How does the seeding work?", "The standard draw order, the one printed on every tournament sheet: seed 1 and seed 2 can only meet in the final, seeds 3 and 4 can only reach them in the semis, and seed 1 opens against the lowest seed in the draw. Pick “random” and the entrant list is shuffled first, so the seeding is a fair draw rather than the order you happened to type."),
+            ("Is double elimination supported?", "No — this draws single elimination only. A losers' bracket is a genuinely different sheet rather than an option on this one, so rather than half-do it, it is left out."),
+            ("Can I print the bracket?", "Yes. Printing the page gives you the bracket on its own — the nav, the form and the notes are all dropped — so it comes out as a sheet you can pin up and write results on."),
+        ],
+        related=["team-generator", "random-name-picker", "rota-builder"],
+        workspace="""
+    <div class="field">
+      <label for="br-names">Entrants (one per line)</label>
+      <textarea id="br-names" rows="7">Alex
+Jordan
+Taylor
+Morgan
+Casey
+Riley</textarea>
+    </div>
+    <div class="controls-row">
+      <div class="field"><label for="br-seeding">Seeding</label><select id="br-seeding">
+        <option value="random">Random draw</option>
+        <option value="listed">As listed &mdash; first line is the top seed</option>
+      </select></div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn" id="br-generate-btn">Draw the bracket</button></div>
+    <p class="tool-message" id="br-message" role="status"></p>
+    <p class="bracket-summary" id="br-summary"></p>
+    <div class="bracket-wrap" id="br-results"></div>
+    <div class="share-row">
+      <input type="text" id="br-share-url" readonly aria-label="Shareable link for this entrant list">
+      <button type="button" class="btn-ghost" id="br-copy-link">Copy link</button>
+    </div>
+""",
+    ),
+    dict(
+        slug="secret-santa",
+        name="Secret Santa Generator",
+        tagline="Draw names with exclusions, and a private link for each person.",
+        description="Free Secret Santa generator with exclusions, so couples and housemates never draw each other. Nobody draws themselves, and each person gets their own link showing only their name. No email, no signup, entirely in your browser.",
+        icon='<path d="M20 12v8H4v-8"/><path d="M2 8h20v4H2z"/><path d="M12 8v12"/><path d="M12 8S10.5 4 8.5 4a2.5 2.5 0 0 0 0 5"/><path d="M12 8s1.5-4 3.5-4a2.5 2.5 0 0 1 0 5"/>',
+        intro="Paste in everyone taking part, add any pairs who must not draw each other, and everyone gets a private link showing only the name they drew. You can run it without ever seeing the pairings yourself.",
+        how_to=[
+            "Paste in everyone taking part, one name per line.",
+            "Add any pairs who must not draw each other — two names on a line, separated by a comma.",
+            "Click “Draw the names”. Nobody gets themselves and no exclusion is broken.",
+            "Send each person their own link. It shows one name, behind a click, and nothing else.",
+        ],
+        faq=[
+            ("How do the exclusions work?", "Put two names on one line separated by a comma and neither will draw the other — it cuts both ways, because “Sam and Alex” is normally a couple who already buy for each other rather than a one-way rule. A name that doesn't match your list is flagged rather than silently ignored, since a typo in an exclusion is exactly how the pairing you promised wouldn't happen happens."),
+            ("What if my exclusions are impossible?", "It says so, and it means it. Shuffling and retrying can only ever report that it didn't manage — and on a tight set of exclusions it reports that after spinning forever. This searches for a valid assignment properly, so when it says there isn't one it has proved it. Three people who can each only give to the same fourth person is impossible, and you get told that rather than a spinner."),
+            ("Can the organiser avoid seeing who has who?", "Mostly. The results are a list of links, one per person, and the names inside them are encoded rather than printed — so you can send them out without reading them. Be straight about the limit though: the link has to carry the name, and anyone determined enough can decode it. It stops you seeing it by accident; it is not a secret kept from you."),
+            ("Does anything get emailed or stored?", "No. There is no server, no account and no email — the draw happens in this tab and the links are just text. Send them however you like: chat, text, or written on the back of an envelope."),
+        ],
+        related=["random-name-picker", "team-generator", "spinner-wheel"],
+        workspace="""
+    <div id="ss-setup">
+      <div class="field">
+        <label for="ss-names">Everyone taking part (one per line)</label>
+        <textarea id="ss-names" rows="7">Alex
+Jordan
+Taylor
+Morgan
+Casey
+Riley</textarea>
+      </div>
+      <div class="field">
+        <label for="ss-exclusions">Who must not draw each other (two names a line, separated by a comma)</label>
+        <textarea id="ss-exclusions" rows="3" placeholder="Alex, Jordan"></textarea>
+      </div>
+      <div class="btn-row"><button type="button" class="btn" id="ss-generate-btn">Draw the names</button></div>
+      <p class="tool-message" id="ss-message" role="status"></p>
+      <div class="santa-list" id="ss-results"></div>
+      <div id="ss-all-wrap" hidden>
+        <div class="field">
+          <label for="ss-all-links">Every link, one per line</label>
+          <textarea id="ss-all-links" rows="4" readonly></textarea>
+        </div>
+        <div class="btn-row"><button type="button" class="btn-ghost" id="ss-copy-all">Copy every link</button></div>
+      </div>
+    </div>
+    <div class="santa-reveal" id="ss-reveal" hidden>
+      <p class="santa-reveal-who" id="ss-reveal-who"></p>
+      <button type="button" class="btn" id="ss-reveal-btn">Reveal the name I drew</button>
+      <p class="santa-reveal-name" id="ss-reveal-name" hidden></p>
+    </div>
+""",
+    ),
+    dict(
+        slug="rota-builder",
+        name="Rota Builder",
+        tagline="People across slots, evenly, and never twice in a row.",
+        description="Free random rota and schedule generator. Share chores, on-call weeks or a reading order across any number of slots — evenly, at random, and optionally never the same person twice running. Entirely in your browser.",
+        icon='<rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><path d="M7.5 13h3M13.5 13h3M7.5 17h3"/>',
+        intro="Chores, on-call weeks, who reads next — one list of people, however many slots you need, dealt out at random but evenly, so nobody quietly ends up with twice as many turns as everyone else.",
+        how_to=[
+            "Paste in the people who are in the rota, one per line.",
+            "Set how many slots to fill, or name them — Mon, Tue, Wed, or Week 1 to Week 12.",
+            "Leave “never the same person twice in a row” on unless back-to-back turns are fine.",
+            "Click “Build the rota”. The tally underneath shows how many turns each person got.",
+        ],
+        faq=[
+            ("What does “evenly” actually mean here?", "That the busiest person is at most one turn ahead of the quietest, always. The rota is dealt in whole rounds — everybody once per round, in a fresh random order each time — rather than picking a name at random for each slot, which is what leaves someone with five turns and someone else with one. Only the last, part-finished round can give anyone that extra turn, and who gets it is random."),
+            ("How does it stop the same person going twice in a row?", "Within a round it cannot happen, because everyone appears exactly once. The only place it can is where one round ends and the next begins, so if the new round would open with whoever just finished, they are swapped with someone else in that round. That keeps the round intact, so the even distribution survives."),
+            ("Can I name the slots?", "Yes — put them in the slot names box, one per line, and they become the rota. Mon to Fri, Week 1 to Week 12, or the actual dates. Leave it empty and you get numbered slots instead."),
+            ("Can one person have more turns than another on purpose?", "No — the point here is an even, unbiased share. If someone should carry a heavier load, run the rota for the people on equal footing and add the rest by hand."),
+        ],
+        related=["team-generator", "random-name-picker", "tournament-bracket"],
+        workspace="""
+    <div class="field">
+      <label for="ro-people">People in the rota (one per line)</label>
+      <textarea id="ro-people" rows="6">Alex
+Jordan
+Taylor
+Morgan</textarea>
+    </div>
+    <div class="controls-row">
+      <div class="field"><label for="ro-slots">How many slots</label><input type="number" id="ro-slots" min="1" max="365" value="12"></div>
+    </div>
+    <div class="field">
+      <label for="ro-slot-names">Slot names (optional, one per line &mdash; these replace the count above)</label>
+      <textarea id="ro-slot-names" rows="3" placeholder="Mon&#10;Tue&#10;Wed"></textarea>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn" id="ro-generate-btn">Build the rota</button>
+      <label class="checkbox-field"><input type="checkbox" id="ro-avoid" checked> Never the same person twice in a row</label>
+    </div>
+    <p class="tool-message" id="ro-message" role="status"></p>
+    <div class="rota-list" id="ro-results"></div>
+    <ul class="rota-tally" id="ro-tally"></ul>
+    <div class="share-row">
+      <input type="text" id="ro-share-url" readonly aria-label="Shareable link for this rota">
+      <button type="button" class="btn-ghost" id="ro-copy-link">Copy link</button>
+    </div>
+""",
+    ),
 ]
 
 TOOLS_BY_SLUG = {t["slug"]: t for t in TOOLS}
@@ -374,7 +521,7 @@ def header(current):
 def footer():
     return """  <footer class="site-footer">
     <div class="wrap">
-      <p class="footer-tag">drawlots.net &mdash; six ways to leave it to chance, entirely in your browser.</p>
+      <p class="footer-tag">drawlots.net &mdash; nine ways to leave it to chance, entirely in your browser.</p>
       <ul class="footer-links">
         <li><a href="/articles/">Articles</a></li>
         <li><a href="/privacy/">Privacy</a></li>
@@ -566,8 +713,8 @@ for t in TOOLS:
 # -------------------------------------------------------------- homepage --
 
 def homepage():
-    title = "drawlots.net — Free Random Decision Tools: Wheel, Dice, Coin & More"
-    description = "Six free instant chance tools in one place: spinner wheel, random name picker, dice roller, coin flip, random number generator and team generator. Cryptographically random, 100% client-side."
+    title = "drawlots.net — Free Random Decision Tools: Wheel, Dice, Brackets & More"
+    description = "Nine free instant chance tools in one place: spinner wheel, random name picker, dice roller, coin flip, random number generator, team generator, tournament bracket, Secret Santa and rota builder. Cryptographically random, 100% client-side."
     json_ld = (
         '{{"@context":"https://schema.org","@type":"WebSite","name":"drawlots.net","url":{url},'
         '"description":{desc}}}'
@@ -614,9 +761,9 @@ def homepage():
     <section class="hero">
       <div class="wrap">
         <div>
-          <p class="eyebrow">six ways to leave it to chance</p>
+          <p class="eyebrow">nine ways to leave it to chance</p>
           <h1>Can't decide?<br>Draw a lot.</h1>
-          <p class="lede">A spinner wheel, a name picker, dice, a coin, a number generator and a team splitter &mdash; every one of them decided by real cryptographic randomness, right here in your browser. Nothing you type ever leaves this tab.</p>
+          <p class="lede">A spinner wheel, a name picker, dice, a coin, a number generator, a team splitter, a tournament bracket, a Secret Santa draw and a rota builder &mdash; every one of them decided by real cryptographic randomness, right here in your browser. Nothing you type ever leaves this tab.</p>
         </div>
 {lots}
       </div>
@@ -663,6 +810,9 @@ CARD_COLOR = {
     "coin-flip": "gold",
     "random-number-generator": "sky",
     "team-generator": "mint",
+    "tournament-bracket": "cobalt",
+    "secret-santa": "berry",
+    "rota-builder": "teal",
 }
 
 homepage()

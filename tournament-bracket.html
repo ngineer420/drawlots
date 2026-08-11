@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script>(function(){try{var r=document.documentElement;var t=localStorage.getItem("drawlots-theme");if(!t){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}r.setAttribute("data-theme",t);}catch(e){}})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tournament Bracket Generator — Free, Instant Random Tool | drawlots.net</title>
+  <meta name="description" content="Free tournament bracket generator. Paste your entrants, get a printable single-elimination bracket with the byes given to the top seeds, random or listed seeding. No signup, entirely in your browser.">
+  <link rel="canonical" href="https://drawlots.net/tournament-bracket/">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect x=%226%22 y=%226%22 width=%2252%22 height=%2252%22 rx=%2214%22 fill=%22%23ff5d5d%22/><circle cx=%2220%22 cy=%2220%22 r=%226%22 fill=%22%23fff%22/><circle cx=%2232%22 cy=%2232%22 r=%226%22 fill=%22%23fff%22/><circle cx=%2244%22 cy=%2244%22 r=%226%22 fill=%22%23fff%22/></svg>">
+  <meta name="theme-color" content="#14231d">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="drawlots.net">
+  <meta property="og:title" content="Tournament Bracket Generator — Free, Instant Random Tool | drawlots.net">
+  <meta property="og:description" content="Free tournament bracket generator. Paste your entrants, get a printable single-elimination bracket with the byes given to the top seeds, random or listed seeding. No signup, entirely in your browser.">
+  <meta property="og:url" content="https://drawlots.net/tournament-bracket/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Tournament Bracket Generator — Free, Instant Random Tool | drawlots.net">
+  <meta name="twitter:description" content="Free tournament bracket generator. Paste your entrants, get a printable single-elimination bracket with the byes given to the top seeds, random or listed seeding. No signup, entirely in your browser.">
+  <link rel="stylesheet" href="/assets/style.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Tournament Bracket Generator \u2014 drawlots.net","url":"https://drawlots.net/tournament-bracket/","applicationCategory":"UtilitiesApplication","operatingSystem":"Any (runs in browser)","description":"Free tournament bracket generator. Paste your entrants, get a printable single-elimination bracket with the byes given to the top seeds, random or listed seeding. No signup, entirely in your browser.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"drawlots.net"}}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7560786263587509" crossorigin="anonymous"></script>
+</head>
+<body data-tool="tournament-bracket">
+  <header class="site-header">
+    <div class="wrap">
+      <a href="/" class="wordmark" data-panel-link="">draw<span class="dot">&bull;</span>lots</a>
+      <ul class="tool-nav" id="tool-nav">
+      <li><a href="/" data-panel-link="">Home</a></li>
+      <li><a href="/spinner-wheel/" data-panel-link="spinner-wheel">Spinner Wheel</a></li>
+      <li><a href="/random-name-picker/" data-panel-link="random-name-picker">Random Name Picker</a></li>
+      <li><a href="/dice-roller/" data-panel-link="dice-roller">Dice Roller</a></li>
+      <li><a href="/coin-flip/" data-panel-link="coin-flip">Coin Flip</a></li>
+      <li><a href="/random-number-generator/" data-panel-link="random-number-generator">Random Number Generator</a></li>
+      <li><a href="/team-generator/" data-panel-link="team-generator">Team Generator</a></li>
+      <li><a href="/tournament-bracket/" data-panel-link="tournament-bracket" aria-current="page">Tournament Bracket Generator</a></li>
+      <li><a href="/secret-santa/" data-panel-link="secret-santa">Secret Santa Generator</a></li>
+      <li><a href="/rota-builder/" data-panel-link="rota-builder">Rota Builder</a></li>
+      </ul>
+      <div class="header-controls">
+        <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="tool-nav" aria-label="Toggle menu">&#9776;</button>
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle light and dark theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 119.5 4a7 7 0 0010.5 10.5z"/></svg></button>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section class="panel">
+      <div class="wrap">
+        <div class="panel-head">
+          <h1 tabindex="-1">Tournament Bracket Generator</h1>
+          <a class="back-to-tools" href="/" data-panel-link="">&larr; All tools</a>
+        </div>
+        <p>Paste in everyone playing and get a proper single-elimination bracket — drawn at random or seeded in the order you listed, with the byes handed out the way a tournament actually hands them out. Print it and pin it up.</p>
+        <div class="workspace">
+
+    <div class="field">
+      <label for="br-names">Entrants (one per line)</label>
+      <textarea id="br-names" rows="7">Alex
+Jordan
+Taylor
+Morgan
+Casey
+Riley</textarea>
+    </div>
+    <div class="controls-row">
+      <div class="field"><label for="br-seeding">Seeding</label><select id="br-seeding">
+        <option value="random">Random draw</option>
+        <option value="listed">As listed &mdash; first line is the top seed</option>
+      </select></div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn" id="br-generate-btn">Draw the bracket</button></div>
+    <p class="tool-message" id="br-message" role="status"></p>
+    <p class="bracket-summary" id="br-summary"></p>
+    <div class="bracket-wrap" id="br-results"></div>
+    <div class="share-row">
+      <input type="text" id="br-share-url" readonly aria-label="Shareable link for this entrant list">
+      <button type="button" class="btn-ghost" id="br-copy-link">Copy link</button>
+    </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section" id="how-it-works">
+      <div class="wrap">
+        <h2>How to use the Tournament Bracket Generator</h2>
+        <div class="how-to">
+          <ol>
+        <li>Paste or type the entrants, one per line.</li>
+        <li>Choose a random draw, or “as listed” if the order you typed is the seeding.</li>
+        <li>Click “Draw the bracket” — the sheet appears with every round and every line to fill in.</li>
+        <li>Print it, or copy the link to send the same entrant list to someone else.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <div class="wrap">
+        <h2>FAQ</h2>
+        <dl class="faq">
+        <dt>What happens when the number of entrants isn't a power of two?</dt>
+        <dd>The bracket is expanded to the next power of two and the empty places become byes — a free walkover into round two. They are not scattered at random: they go to the top seeds, one each. With six entrants in a bracket of eight there are two byes, and they belong to seeds 1 and 2. With five entrants there are three, and seeds 1, 2 and 3 sit out the first round.</dd>
+        <dt>How does the seeding work?</dt>
+        <dd>The standard draw order, the one printed on every tournament sheet: seed 1 and seed 2 can only meet in the final, seeds 3 and 4 can only reach them in the semis, and seed 1 opens against the lowest seed in the draw. Pick “random” and the entrant list is shuffled first, so the seeding is a fair draw rather than the order you happened to type.</dd>
+        <dt>Is double elimination supported?</dt>
+        <dd>No — this draws single elimination only. A losers' bracket is a genuinely different sheet rather than an option on this one, so rather than half-do it, it is left out.</dd>
+        <dt>Can I print the bracket?</dt>
+        <dd>Yes. Printing the page gives you the bracket on its own — the nav, the form and the notes are all dropped — so it comes out as a sheet you can pin up and write results on.</dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <div class="wrap">
+        <h2>Related tools</h2>
+        <div class="related-links">
+        <a href="/team-generator/">Team Generator &rarr;</a>
+        <a href="/random-name-picker/">Random Name Picker &rarr;</a>
+        <a href="/rota-builder/">Rota Builder &rarr;</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap">
+      <p class="footer-tag">drawlots.net &mdash; nine ways to leave it to chance, entirely in your browser.</p>
+      <ul class="footer-links">
+        <li><a href="/articles/">Articles</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
+        <li><a href="/terms/">Terms</a></li>
+      </ul>
+    </div>
+  </footer>
+<a href="https://erabb.it" class="erabbit-mark" aria-label="erabb.it"><img src="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐇</text></svg>" width="10" height="10" alt=""></a>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What happens when the number of entrants isn't a power of two?","acceptedAnswer":{"@type":"Answer","text":"The bracket is expanded to the next power of two and the empty places become byes \u2014 a free walkover into round two. They are not scattered at random: they go to the top seeds, one each. With six entrants in a bracket of eight there are two byes, and they belong to seeds 1 and 2. With five entrants there are three, and seeds 1, 2 and 3 sit out the first round."}},{"@type":"Question","name":"How does the seeding work?","acceptedAnswer":{"@type":"Answer","text":"The standard draw order, the one printed on every tournament sheet: seed 1 and seed 2 can only meet in the final, seeds 3 and 4 can only reach them in the semis, and seed 1 opens against the lowest seed in the draw. Pick \u201crandom\u201d and the entrant list is shuffled first, so the seeding is a fair draw rather than the order you happened to type."}},{"@type":"Question","name":"Is double elimination supported?","acceptedAnswer":{"@type":"Answer","text":"No \u2014 this draws single elimination only. A losers' bracket is a genuinely different sheet rather than an option on this one, so rather than half-do it, it is left out."}},{"@type":"Question","name":"Can I print the bracket?","acceptedAnswer":{"@type":"Answer","text":"Yes. Printing the page gives you the bracket on its own \u2014 the nav, the form and the notes are all dropped \u2014 so it comes out as a sheet you can pin up and write results on."}}]}</script>
+  <script src="/assets/random.js"></script>
+  <script src="/assets/tools.js"></script>
+  <script src="/assets/app.js"></script>
+</body>
+</html>
