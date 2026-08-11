@@ -4,21 +4,21 @@
   <script>(function(){try{var r=document.documentElement;var t=localStorage.getItem("drawlots-theme");if(!t){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}r.setAttribute("data-theme",t);}catch(e){}})();</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>drawlots.net — Free Random Decision Tools: Wheel, Dice, Coin & More</title>
-  <meta name="description" content="Six free instant chance tools in one place: spinner wheel, random name picker, dice roller, coin flip, random number generator and team generator. Cryptographically random, 100% client-side.">
+  <title>drawlots.net — Free Random Decision Tools: Wheel, Dice, Brackets & More</title>
+  <meta name="description" content="Nine free instant chance tools in one place: spinner wheel, random name picker, dice roller, coin flip, random number generator, team generator, tournament bracket, Secret Santa and rota builder. Cryptographically random, 100% client-side.">
   <link rel="canonical" href="https://drawlots.net/">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect x=%226%22 y=%226%22 width=%2252%22 height=%2252%22 rx=%2214%22 fill=%22%23ff5d5d%22/><circle cx=%2220%22 cy=%2220%22 r=%226%22 fill=%22%23fff%22/><circle cx=%2232%22 cy=%2232%22 r=%226%22 fill=%22%23fff%22/><circle cx=%2244%22 cy=%2244%22 r=%226%22 fill=%22%23fff%22/></svg>">
   <meta name="theme-color" content="#14231d">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="drawlots.net">
-  <meta property="og:title" content="drawlots.net — Free Random Decision Tools: Wheel, Dice, Coin & More">
-  <meta property="og:description" content="Six free instant chance tools in one place: spinner wheel, random name picker, dice roller, coin flip, random number generator and team generator. Cryptographically random, 100% client-side.">
+  <meta property="og:title" content="drawlots.net — Free Random Decision Tools: Wheel, Dice, Brackets & More">
+  <meta property="og:description" content="Nine free instant chance tools in one place: spinner wheel, random name picker, dice roller, coin flip, random number generator, team generator, tournament bracket, Secret Santa and rota builder. Cryptographically random, 100% client-side.">
   <meta property="og:url" content="https://drawlots.net/">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="drawlots.net — Free Random Decision Tools: Wheel, Dice, Coin & More">
-  <meta name="twitter:description" content="Six free instant chance tools in one place: spinner wheel, random name picker, dice roller, coin flip, random number generator and team generator. Cryptographically random, 100% client-side.">
+  <meta name="twitter:title" content="drawlots.net — Free Random Decision Tools: Wheel, Dice, Brackets & More">
+  <meta name="twitter:description" content="Nine free instant chance tools in one place: spinner wheel, random name picker, dice roller, coin flip, random number generator, team generator, tournament bracket, Secret Santa and rota builder. Cryptographically random, 100% client-side.">
   <link rel="stylesheet" href="/assets/style.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"drawlots.net","url":"https://drawlots.net/","description":"Six free instant chance tools in one place: spinner wheel, random name picker, dice roller, coin flip, random number generator and team generator. Cryptographically random, 100% client-side."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"drawlots.net","url":"https://drawlots.net/","description":"Nine free instant chance tools in one place: spinner wheel, random name picker, dice roller, coin flip, random number generator, team generator, tournament bracket, Secret Santa and rota builder. Cryptographically random, 100% client-side."}</script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7560786263587509" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -33,6 +33,9 @@
       <li><a href="/coin-flip/" data-panel-link="coin-flip">Coin Flip</a></li>
       <li><a href="/random-number-generator/" data-panel-link="random-number-generator">Random Number Generator</a></li>
       <li><a href="/team-generator/" data-panel-link="team-generator">Team Generator</a></li>
+      <li><a href="/tournament-bracket/" data-panel-link="tournament-bracket">Tournament Bracket Generator</a></li>
+      <li><a href="/secret-santa/" data-panel-link="secret-santa">Secret Santa Generator</a></li>
+      <li><a href="/rota-builder/" data-panel-link="rota-builder">Rota Builder</a></li>
       </ul>
       <div class="header-controls">
         <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="tool-nav" aria-label="Toggle menu">&#9776;</button>
@@ -44,9 +47,9 @@
     <section class="hero">
       <div class="wrap">
         <div>
-          <p class="eyebrow">six ways to leave it to chance</p>
+          <p class="eyebrow">nine ways to leave it to chance</p>
           <h1>Can't decide?<br>Draw a lot.</h1>
-          <p class="lede">A spinner wheel, a name picker, dice, a coin, a number generator and a team splitter &mdash; every one of them decided by real cryptographic randomness, right here in your browser. Nothing you type ever leaves this tab.</p>
+          <p class="lede">A spinner wheel, a name picker, dice, a coin, a number generator, a team splitter, a tournament bracket, a Secret Santa draw and a rota builder &mdash; every one of them decided by real cryptographic randomness, right here in your browser. Nothing you type ever leaves this tab.</p>
         </div>
     <div class="lots-stage" aria-hidden="true">
       <div class="lot-stick" style="--rot:-16deg"><svg width="14" height="150" viewBox="0 0 14 150"><rect x="4" y="0" width="6" height="150" rx="3" fill="var(--lot-sky)"/></svg></div>
@@ -92,6 +95,21 @@
             <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 20c0-3.3 2.7-6 5.5-6s5.5 2.7 5.5 6"/><circle cx="17.5" cy="9" r="2.3"/><path d="M15.8 20c.2-2.6 1.9-4.7 4-5.3"/></svg></span>
             <h3>Team Generator</h3>
             <p>One list, split fairly into N teams.</p>
+          </a>
+          <a class="tool-card" href="/tournament-bracket/" data-panel-link="tournament-bracket" style="--card-accent: var(--lot-cobalt)">
+            <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h5v6h6V5h5"/><path d="M9 11v8h6v-8"/><circle cx="12" cy="21" r="1.6"/></svg></span>
+            <h3>Tournament Bracket Generator</h3>
+            <p>Names in, a seeded knockout bracket out — byes and all.</p>
+          </a>
+          <a class="tool-card" href="/secret-santa/" data-panel-link="secret-santa" style="--card-accent: var(--lot-berry)">
+            <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12v8H4v-8"/><path d="M2 8h20v4H2z"/><path d="M12 8v12"/><path d="M12 8S10.5 4 8.5 4a2.5 2.5 0 0 0 0 5"/><path d="M12 8s1.5-4 3.5-4a2.5 2.5 0 0 1 0 5"/></svg></span>
+            <h3>Secret Santa Generator</h3>
+            <p>Draw names with exclusions, and a private link for each person.</p>
+          </a>
+          <a class="tool-card" href="/rota-builder/" data-panel-link="rota-builder" style="--card-accent: var(--lot-teal)">
+            <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><path d="M7.5 13h3M13.5 13h3M7.5 17h3"/></svg></span>
+            <h3>Rota Builder</h3>
+            <p>People across slots, evenly, and never twice in a row.</p>
           </a>
         </div>
       </div>
@@ -328,6 +346,123 @@ Drew</textarea>
         <p style="margin-top:16px;font-size:14px"><a href="/team-generator/#how-it-works">Full guide &amp; FAQ for the Team Generator &rarr;</a></p>
       </div>
     </section>
+    <section class="panel" data-panel="tournament-bracket" data-title="Tournament Bracket Generator &mdash; drawlots.net" hidden>
+      <div class="wrap">
+        <div class="panel-head">
+          <h2 tabindex="-1">Tournament Bracket Generator</h2>
+          <a class="back-to-tools" href="/" data-panel-link="">&larr; All tools</a>
+        </div>
+        <p>Paste in everyone playing and get a proper single-elimination bracket — drawn at random or seeded in the order you listed, with the byes handed out the way a tournament actually hands them out. Print it and pin it up.</p>
+        <div class="workspace">
+
+    <div class="field">
+      <label for="br-names">Entrants (one per line)</label>
+      <textarea id="br-names" rows="7">Alex
+Jordan
+Taylor
+Morgan
+Casey
+Riley</textarea>
+    </div>
+    <div class="controls-row">
+      <div class="field"><label for="br-seeding">Seeding</label><select id="br-seeding">
+        <option value="random">Random draw</option>
+        <option value="listed">As listed &mdash; first line is the top seed</option>
+      </select></div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn" id="br-generate-btn">Draw the bracket</button></div>
+    <p class="tool-message" id="br-message" role="status"></p>
+    <p class="bracket-summary" id="br-summary"></p>
+    <div class="bracket-wrap" id="br-results"></div>
+    <div class="share-row">
+      <input type="text" id="br-share-url" readonly aria-label="Shareable link for this entrant list">
+      <button type="button" class="btn-ghost" id="br-copy-link">Copy link</button>
+    </div>
+        </div>
+        <p style="margin-top:16px;font-size:14px"><a href="/tournament-bracket/#how-it-works">Full guide &amp; FAQ for the Tournament Bracket Generator &rarr;</a></p>
+      </div>
+    </section>
+    <section class="panel" data-panel="secret-santa" data-title="Secret Santa Generator &mdash; drawlots.net" hidden>
+      <div class="wrap">
+        <div class="panel-head">
+          <h2 tabindex="-1">Secret Santa Generator</h2>
+          <a class="back-to-tools" href="/" data-panel-link="">&larr; All tools</a>
+        </div>
+        <p>Paste in everyone taking part, add any pairs who must not draw each other, and everyone gets a private link showing only the name they drew. You can run it without ever seeing the pairings yourself.</p>
+        <div class="workspace">
+
+    <div id="ss-setup">
+      <div class="field">
+        <label for="ss-names">Everyone taking part (one per line)</label>
+        <textarea id="ss-names" rows="7">Alex
+Jordan
+Taylor
+Morgan
+Casey
+Riley</textarea>
+      </div>
+      <div class="field">
+        <label for="ss-exclusions">Who must not draw each other (two names a line, separated by a comma)</label>
+        <textarea id="ss-exclusions" rows="3" placeholder="Alex, Jordan"></textarea>
+      </div>
+      <div class="btn-row"><button type="button" class="btn" id="ss-generate-btn">Draw the names</button></div>
+      <p class="tool-message" id="ss-message" role="status"></p>
+      <div class="santa-list" id="ss-results"></div>
+      <div id="ss-all-wrap" hidden>
+        <div class="field">
+          <label for="ss-all-links">Every link, one per line</label>
+          <textarea id="ss-all-links" rows="4" readonly></textarea>
+        </div>
+        <div class="btn-row"><button type="button" class="btn-ghost" id="ss-copy-all">Copy every link</button></div>
+      </div>
+    </div>
+    <div class="santa-reveal" id="ss-reveal" hidden>
+      <p class="santa-reveal-who" id="ss-reveal-who"></p>
+      <button type="button" class="btn" id="ss-reveal-btn">Reveal the name I drew</button>
+      <p class="santa-reveal-name" id="ss-reveal-name" hidden></p>
+    </div>
+        </div>
+        <p style="margin-top:16px;font-size:14px"><a href="/secret-santa/#how-it-works">Full guide &amp; FAQ for the Secret Santa Generator &rarr;</a></p>
+      </div>
+    </section>
+    <section class="panel" data-panel="rota-builder" data-title="Rota Builder &mdash; drawlots.net" hidden>
+      <div class="wrap">
+        <div class="panel-head">
+          <h2 tabindex="-1">Rota Builder</h2>
+          <a class="back-to-tools" href="/" data-panel-link="">&larr; All tools</a>
+        </div>
+        <p>Chores, on-call weeks, who reads next — one list of people, however many slots you need, dealt out at random but evenly, so nobody quietly ends up with twice as many turns as everyone else.</p>
+        <div class="workspace">
+
+    <div class="field">
+      <label for="ro-people">People in the rota (one per line)</label>
+      <textarea id="ro-people" rows="6">Alex
+Jordan
+Taylor
+Morgan</textarea>
+    </div>
+    <div class="controls-row">
+      <div class="field"><label for="ro-slots">How many slots</label><input type="number" id="ro-slots" min="1" max="365" value="12"></div>
+    </div>
+    <div class="field">
+      <label for="ro-slot-names">Slot names (optional, one per line &mdash; these replace the count above)</label>
+      <textarea id="ro-slot-names" rows="3" placeholder="Mon&#10;Tue&#10;Wed"></textarea>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn" id="ro-generate-btn">Build the rota</button>
+      <label class="checkbox-field"><input type="checkbox" id="ro-avoid" checked> Never the same person twice in a row</label>
+    </div>
+    <p class="tool-message" id="ro-message" role="status"></p>
+    <div class="rota-list" id="ro-results"></div>
+    <ul class="rota-tally" id="ro-tally"></ul>
+    <div class="share-row">
+      <input type="text" id="ro-share-url" readonly aria-label="Shareable link for this rota">
+      <button type="button" class="btn-ghost" id="ro-copy-link">Copy link</button>
+    </div>
+        </div>
+        <p style="margin-top:16px;font-size:14px"><a href="/rota-builder/#how-it-works">Full guide &amp; FAQ for the Rota Builder &rarr;</a></p>
+      </div>
+    </section>
 
     <section class="content-section">
       <div class="wrap">
@@ -339,7 +474,7 @@ Drew</textarea>
   </main>
   <footer class="site-footer">
     <div class="wrap">
-      <p class="footer-tag">drawlots.net &mdash; six ways to leave it to chance, entirely in your browser.</p>
+      <p class="footer-tag">drawlots.net &mdash; nine ways to leave it to chance, entirely in your browser.</p>
       <ul class="footer-links">
         <li><a href="/articles/">Articles</a></li>
         <li><a href="/privacy/">Privacy</a></li>

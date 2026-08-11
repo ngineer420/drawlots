@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script>(function(){try{var r=document.documentElement;var t=localStorage.getItem("drawlots-theme");if(!t){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}r.setAttribute("data-theme",t);}catch(e){}})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rota Builder — Free, Instant Random Tool | drawlots.net</title>
+  <meta name="description" content="Free random rota and schedule generator. Share chores, on-call weeks or a reading order across any number of slots — evenly, at random, and optionally never the same person twice running. Entirely in your browser.">
+  <link rel="canonical" href="https://drawlots.net/rota-builder/">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect x=%226%22 y=%226%22 width=%2252%22 height=%2252%22 rx=%2214%22 fill=%22%23ff5d5d%22/><circle cx=%2220%22 cy=%2220%22 r=%226%22 fill=%22%23fff%22/><circle cx=%2232%22 cy=%2232%22 r=%226%22 fill=%22%23fff%22/><circle cx=%2244%22 cy=%2244%22 r=%226%22 fill=%22%23fff%22/></svg>">
+  <meta name="theme-color" content="#14231d">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="drawlots.net">
+  <meta property="og:title" content="Rota Builder — Free, Instant Random Tool | drawlots.net">
+  <meta property="og:description" content="Free random rota and schedule generator. Share chores, on-call weeks or a reading order across any number of slots — evenly, at random, and optionally never the same person twice running. Entirely in your browser.">
+  <meta property="og:url" content="https://drawlots.net/rota-builder/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Rota Builder — Free, Instant Random Tool | drawlots.net">
+  <meta name="twitter:description" content="Free random rota and schedule generator. Share chores, on-call weeks or a reading order across any number of slots — evenly, at random, and optionally never the same person twice running. Entirely in your browser.">
+  <link rel="stylesheet" href="/assets/style.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Rota Builder \u2014 drawlots.net","url":"https://drawlots.net/rota-builder/","applicationCategory":"UtilitiesApplication","operatingSystem":"Any (runs in browser)","description":"Free random rota and schedule generator. Share chores, on-call weeks or a reading order across any number of slots \u2014 evenly, at random, and optionally never the same person twice running. Entirely in your browser.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"drawlots.net"}}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7560786263587509" crossorigin="anonymous"></script>
+</head>
+<body data-tool="rota-builder">
+  <header class="site-header">
+    <div class="wrap">
+      <a href="/" class="wordmark" data-panel-link="">draw<span class="dot">&bull;</span>lots</a>
+      <ul class="tool-nav" id="tool-nav">
+      <li><a href="/" data-panel-link="">Home</a></li>
+      <li><a href="/spinner-wheel/" data-panel-link="spinner-wheel">Spinner Wheel</a></li>
+      <li><a href="/random-name-picker/" data-panel-link="random-name-picker">Random Name Picker</a></li>
+      <li><a href="/dice-roller/" data-panel-link="dice-roller">Dice Roller</a></li>
+      <li><a href="/coin-flip/" data-panel-link="coin-flip">Coin Flip</a></li>
+      <li><a href="/random-number-generator/" data-panel-link="random-number-generator">Random Number Generator</a></li>
+      <li><a href="/team-generator/" data-panel-link="team-generator">Team Generator</a></li>
+      <li><a href="/tournament-bracket/" data-panel-link="tournament-bracket">Tournament Bracket Generator</a></li>
+      <li><a href="/secret-santa/" data-panel-link="secret-santa">Secret Santa Generator</a></li>
+      <li><a href="/rota-builder/" data-panel-link="rota-builder" aria-current="page">Rota Builder</a></li>
+      </ul>
+      <div class="header-controls">
+        <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="tool-nav" aria-label="Toggle menu">&#9776;</button>
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle light and dark theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 119.5 4a7 7 0 0010.5 10.5z"/></svg></button>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section class="panel">
+      <div class="wrap">
+        <div class="panel-head">
+          <h1 tabindex="-1">Rota Builder</h1>
+          <a class="back-to-tools" href="/" data-panel-link="">&larr; All tools</a>
+        </div>
+        <p>Chores, on-call weeks, who reads next — one list of people, however many slots you need, dealt out at random but evenly, so nobody quietly ends up with twice as many turns as everyone else.</p>
+        <div class="workspace">
+
+    <div class="field">
+      <label for="ro-people">People in the rota (one per line)</label>
+      <textarea id="ro-people" rows="6">Alex
+Jordan
+Taylor
+Morgan</textarea>
+    </div>
+    <div class="controls-row">
+      <div class="field"><label for="ro-slots">How many slots</label><input type="number" id="ro-slots" min="1" max="365" value="12"></div>
+    </div>
+    <div class="field">
+      <label for="ro-slot-names">Slot names (optional, one per line &mdash; these replace the count above)</label>
+      <textarea id="ro-slot-names" rows="3" placeholder="Mon&#10;Tue&#10;Wed"></textarea>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn" id="ro-generate-btn">Build the rota</button>
+      <label class="checkbox-field"><input type="checkbox" id="ro-avoid" checked> Never the same person twice in a row</label>
+    </div>
+    <p class="tool-message" id="ro-message" role="status"></p>
+    <div class="rota-list" id="ro-results"></div>
+    <ul class="rota-tally" id="ro-tally"></ul>
+    <div class="share-row">
+      <input type="text" id="ro-share-url" readonly aria-label="Shareable link for this rota">
+      <button type="button" class="btn-ghost" id="ro-copy-link">Copy link</button>
+    </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section" id="how-it-works">
+      <div class="wrap">
+        <h2>How to use the Rota Builder</h2>
+        <div class="how-to">
+          <ol>
+        <li>Paste in the people who are in the rota, one per line.</li>
+        <li>Set how many slots to fill, or name them — Mon, Tue, Wed, or Week 1 to Week 12.</li>
+        <li>Leave “never the same person twice in a row” on unless back-to-back turns are fine.</li>
+        <li>Click “Build the rota”. The tally underneath shows how many turns each person got.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <div class="wrap">
+        <h2>FAQ</h2>
+        <dl class="faq">
+        <dt>What does “evenly” actually mean here?</dt>
+        <dd>That the busiest person is at most one turn ahead of the quietest, always. The rota is dealt in whole rounds — everybody once per round, in a fresh random order each time — rather than picking a name at random for each slot, which is what leaves someone with five turns and someone else with one. Only the last, part-finished round can give anyone that extra turn, and who gets it is random.</dd>
+        <dt>How does it stop the same person going twice in a row?</dt>
+        <dd>Within a round it cannot happen, because everyone appears exactly once. The only place it can is where one round ends and the next begins, so if the new round would open with whoever just finished, they are swapped with someone else in that round. That keeps the round intact, so the even distribution survives.</dd>
+        <dt>Can I name the slots?</dt>
+        <dd>Yes — put them in the slot names box, one per line, and they become the rota. Mon to Fri, Week 1 to Week 12, or the actual dates. Leave it empty and you get numbered slots instead.</dd>
+        <dt>Can one person have more turns than another on purpose?</dt>
+        <dd>No — the point here is an even, unbiased share. If someone should carry a heavier load, run the rota for the people on equal footing and add the rest by hand.</dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <div class="wrap">
+        <h2>Related tools</h2>
+        <div class="related-links">
+        <a href="/team-generator/">Team Generator &rarr;</a>
+        <a href="/random-name-picker/">Random Name Picker &rarr;</a>
+        <a href="/tournament-bracket/">Tournament Bracket Generator &rarr;</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap">
+      <p class="footer-tag">drawlots.net &mdash; nine ways to leave it to chance, entirely in your browser.</p>
+      <ul class="footer-links">
+        <li><a href="/articles/">Articles</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
+        <li><a href="/terms/">Terms</a></li>
+      </ul>
+    </div>
+  </footer>
+<a href="https://erabb.it" class="erabbit-mark" aria-label="erabb.it"><img src="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐇</text></svg>" width="10" height="10" alt=""></a>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does \u201cevenly\u201d actually mean here?","acceptedAnswer":{"@type":"Answer","text":"That the busiest person is at most one turn ahead of the quietest, always. The rota is dealt in whole rounds \u2014 everybody once per round, in a fresh random order each time \u2014 rather than picking a name at random for each slot, which is what leaves someone with five turns and someone else with one. Only the last, part-finished round can give anyone that extra turn, and who gets it is random."}},{"@type":"Question","name":"How does it stop the same person going twice in a row?","acceptedAnswer":{"@type":"Answer","text":"Within a round it cannot happen, because everyone appears exactly once. The only place it can is where one round ends and the next begins, so if the new round would open with whoever just finished, they are swapped with someone else in that round. That keeps the round intact, so the even distribution survives."}},{"@type":"Question","name":"Can I name the slots?","acceptedAnswer":{"@type":"Answer","text":"Yes \u2014 put them in the slot names box, one per line, and they become the rota. Mon to Fri, Week 1 to Week 12, or the actual dates. Leave it empty and you get numbered slots instead."}},{"@type":"Question","name":"Can one person have more turns than another on purpose?","acceptedAnswer":{"@type":"Answer","text":"No \u2014 the point here is an even, unbiased share. If someone should carry a heavier load, run the rota for the people on equal footing and add the rest by hand."}}]}</script>
+  <script src="/assets/random.js"></script>
+  <script src="/assets/tools.js"></script>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

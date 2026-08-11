@@ -1,7 +1,7 @@
 /*
  * drawlots.net — per-tool interactive logic.
  * Every init*() guards on its own root element so this single file can be
- * safely included on every page (homepage has all six workspaces hidden in
+ * safely included on every page (homepage has all nine workspaces hidden in
  * panels; a standalone tool page only has its own markup).
  */
 (function () {
@@ -612,6 +612,576 @@
     updateShare();
   }
 
+  // ------------------------------------------------------------ bracket --
+
+  // Standard single-elimination seeding order. Seed 1 meets seed 2 only in the
+  // final, seed 1 meets seed 3 or 4 only in the semi, and so on down — which is
+  // the whole point of seeding. Built by repeatedly splitting: each seed s in a
+  // bracket of size k becomes the pair (s, 2k+1-s) in a bracket of size 2k.
+  //
+  // For 8 that gives 1,8,4,5,2,7,3,6 — the order every printed draw sheet uses.
+  function seedOrder(size) {
+    var order = [1];
+    while (order.length < size) {
+      var total = order.length * 2 + 1;
+      var next = [];
+      for (var i = 0; i < order.length; i++) {
+        next.push(order[i]);
+        next.push(total - order[i]);
+      }
+      order = next;
+    }
+    return order;
+  }
+
+  // Byes are not scattered at random and they are not all bunched at the top of
+  // the sheet: they belong to the highest seeds, one each. Filling the bracket
+  // in seed order and letting the seeds that do not exist be byes does that on
+  // its own — with 6 entrants in a bracket of 8, seeds 7 and 8 are missing, and
+  // they sit opposite seeds 2 and 1, so exactly the top two get the walkover.
+  function buildBracket(entrants) {
+    var n = entrants.length;
+    var size = 1;
+    while (size < n) size *= 2;
+
+    var order = seedOrder(size);
+    var slots = [];
+    for (var i = 0; i < size; i++) {
+      var seed = order[i];
+      slots.push(seed <= n ? { name: entrants[seed - 1], seed: seed } : null);
+    }
+
+    // Round 0 is the drawn entrants; each later round holds the winners, which
+    // are known only where a bye decided them.
+    var rounds = [slots];
+    var prev = slots;
+    var firstRound = true;
+    while (prev.length > 1) {
+      var next = [];
+      for (var m = 0; m + 1 < prev.length; m += 2) {
+        var a = prev[m], b = prev[m + 1];
+        // A bye advances its player without playing — but only out of round
+        // one, because that is the only round where an empty slot means
+        // "nobody was drawn here". From round two on, an empty slot means "the
+        // winner of a match nobody has played yet", and carrying a name
+        // through one of those would be printing a result that has not
+        // happened. Byes are a property of the draw, not a free pass up the
+        // sheet.
+        if (firstRound && a && !b) next.push(a);
+        else if (firstRound && !a && b) next.push(b);
+        else next.push(null);
+      }
+      rounds.push(next);
+      prev = next;
+      firstRound = false;
+    }
+    return { rounds: rounds, size: size, byes: size - n };
+  }
+
+  function roundName(index, totalRounds) {
+    var fromEnd = totalRounds - index;
+    if (fromEnd === 1) return "Final";
+    if (fromEnd === 2) return "Semi-finals";
+    if (fromEnd === 3) return "Quarter-finals";
+    return "Round " + (index + 1);
+  }
+
+  var SVG_NS = "http://www.w3.org/2000/svg";
+
+  function svgEl(name, attrs) {
+    var el = document.createElementNS(SVG_NS, name);
+    Object.keys(attrs).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+    return el;
+  }
+
+  // Names go in as textContent, never as markup — same rule as everywhere else
+  // on the site. Long ones are cut rather than allowed to run into the next
+  // round's column.
+  function svgText(x, y, str, cls, maxChars) {
+    var el = svgEl("text", { x: x, y: y, class: cls });
+    el.textContent = str.length > maxChars ? str.slice(0, maxChars - 1) + "…" : str;
+    return el;
+  }
+
+  function drawBracket(bracket) {
+    var rounds = bracket.rounds;
+    var totalRounds = rounds.length - 1;
+    var LINE = 30, COL = 168, GAP = 34, TOP = 28, PAD = 6;
+    var width = totalRounds * (COL + GAP) + COL + PAD * 2;
+    var height = bracket.size * LINE + TOP + PAD;
+
+    var svg = svgEl("svg", {
+      class: "bracket-svg",
+      viewBox: "0 0 " + width + " " + height,
+      role: "img",
+      "aria-label": "Single elimination bracket",
+    });
+
+    // Slot centres, defined from round 0 outwards: a match's winner sits
+    // exactly halfway between the two players who could produce it, which is
+    // what makes the connectors straight.
+    var centres = [];
+    var r, s;
+    for (r = 0; r < rounds.length; r++) {
+      centres.push([]);
+      for (s = 0; s < rounds[r].length; s++) {
+        centres[r].push(r === 0
+          ? TOP + (s + 0.5) * LINE
+          : (centres[r - 1][s * 2] + centres[r - 1][s * 2 + 1]) / 2);
+      }
+    }
+
+    var colX = function (round) { return PAD + round * (COL + GAP); };
+
+    for (r = 0; r < rounds.length; r++) {
+      var x = colX(r);
+      var label = r === rounds.length - 1 ? "Winner" : roundName(r, totalRounds);
+      svg.appendChild(svgText(x, 16, label, "bracket-round-label", 24));
+
+      for (s = 0; s < rounds[r].length; s++) {
+        var y = centres[r][s];
+        var entry = rounds[r][s];
+
+        // The line you write the winner on, whether or not it is filled in.
+        svg.appendChild(svgEl("line", {
+          x1: x, y1: y + 5, x2: x + COL, y2: y + 5, class: "bracket-rule",
+        }));
+
+        if (entry && r === 0) {
+          svg.appendChild(svgText(x + 2, y + 1, String(entry.seed), "bracket-seed", 3));
+          svg.appendChild(svgText(x + 22, y + 1, entry.name, "bracket-name", 20));
+        } else if (entry) {
+          // The only name that can be printed in a later round before anyone
+          // has played is one that got there on a bye, so it is drawn lighter:
+          // it is a name the draw put there, not a result.
+          svg.appendChild(svgText(x + 2, y + 1, entry.name, "bracket-name bracket-advanced", 22));
+        } else if (r === 0) {
+          svg.appendChild(svgText(x + 2, y + 1, "bye", "bracket-bye", 4));
+        }
+
+        // Connector into the next round: out of this slot, across to the
+        // half-way point, and down or up to meet its partner.
+        if (r < rounds.length - 1) {
+          var mid = x + COL + GAP / 2;
+          var partnerY = centres[r][s % 2 === 0 ? s + 1 : s - 1];
+          svg.appendChild(svgEl("path", {
+            class: "bracket-link",
+            d: "M" + (x + COL) + " " + (y + 5) + "H" + mid + "V" + (partnerY + 5),
+          }));
+          if (s % 2 === 0) {
+            svg.appendChild(svgEl("path", {
+              class: "bracket-link",
+              d: "M" + mid + " " + (centres[r + 1][s / 2] + 5) + "H" + colX(r + 1),
+            }));
+          }
+        }
+      }
+    }
+    return svg;
+  }
+
+  function initBracket() {
+    var namesEl = $("br-names");
+    if (!namesEl) return;
+
+    var seedingEl = $("br-seeding");
+    var generateBtn = $("br-generate-btn");
+    var resultsEl = $("br-results");
+    var summaryEl = $("br-summary");
+    var messageEl = $("br-message");
+    var shareInput = $("br-share-url");
+    var shareBtn = $("br-copy-link");
+
+    var namesParam = qsp.get("names");
+    var seedingParam = qsp.get("seeding");
+    if (namesParam) {
+      namesEl.value = namesParam.split(",").map(function (s) { return decodeURIComponent(s.trim()); }).join("\n");
+    }
+    if (seedingParam === "random" || seedingParam === "listed") seedingEl.value = seedingParam;
+
+    function updateShare() {
+      setShareUrl(shareInput, "/tournament-bracket", {
+        names: parseList(namesEl.value).map(encodeURIComponent).join(","),
+        seeding: seedingEl.value,
+      });
+    }
+    namesEl.addEventListener("input", updateShare);
+    seedingEl.addEventListener("change", updateShare);
+
+    generateBtn.addEventListener("click", function () {
+      var names = parseList(namesEl.value);
+      messageEl.textContent = "";
+      summaryEl.textContent = "";
+      resultsEl.innerHTML = "";
+
+      if (names.length < 2) {
+        messageEl.textContent = "Add at least 2 entrants to draw a bracket.";
+        return;
+      }
+      if (names.length > 128) {
+        messageEl.textContent = "That is " + names.length + " entrants; 128 is the most that fits on a readable sheet.";
+        return;
+      }
+
+      var entrants = seedingEl.value === "listed" ? names.slice() : R.shuffle(names);
+      var bracket = buildBracket(entrants);
+      resultsEl.appendChild(drawBracket(bracket));
+
+      var rounds = bracket.rounds.length - 1;
+      summaryEl.textContent = names.length + " entrants in a bracket of " + bracket.size + " — " +
+        rounds + (rounds === 1 ? " round" : " rounds") + ", " +
+        (bracket.byes === 0
+          ? "no byes, the draw is a clean power of two."
+          : bracket.byes + (bracket.byes === 1 ? " bye, given to the top seed." : " byes, one each to the top " + bracket.byes + " seeds."));
+      updateShare();
+    });
+
+    wireCopyButton(shareBtn, shareInput);
+    updateShare();
+  }
+
+  // ------------------------------------------------------------- santa --
+
+  // A link has to survive being pasted into a chat window, so the name inside
+  // it is base64 in the URL-safe alphabet. This hides it from a glance, which
+  // is all it can honestly claim: anyone holding the link can decode it, and
+  // the FAQ says so rather than pretending otherwise.
+  function encodeName(str) {
+    var utf8 = encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (m, hex) {
+      return String.fromCharCode(parseInt(hex, 16));
+    });
+    return btoa(utf8).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  function decodeName(str) {
+    var b64 = str.replace(/-/g, "+").replace(/_/g, "/");
+    while (b64.length % 4) b64 += "=";
+    var raw = atob(b64);
+    return decodeURIComponent(raw.split("").map(function (c) {
+      return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(""));
+  }
+
+  // Who may draw whom. Nobody draws themselves, and an exclusion cuts both
+  // ways: "Sam and Alex" is people saying they already buy for each other, not
+  // people nominating a direction.
+  function allowedTable(names, pairs) {
+    var n = names.length;
+    var allowed = [];
+    var i, j;
+    for (i = 0; i < n; i++) {
+      allowed.push([]);
+      for (j = 0; j < n; j++) allowed[i].push(i !== j);
+    }
+    pairs.forEach(function (pair) {
+      allowed[pair[0]][pair[1]] = false;
+      allowed[pair[1]][pair[0]] = false;
+    });
+    return allowed;
+  }
+
+  // Kuhn's algorithm for a perfect matching in the bipartite graph of givers
+  // against receivers. This is the honest part of the tool: shuffling and
+  // retrying can only ever say "I did not manage it", and on a tight set of
+  // exclusions it says that after spinning forever. An augmenting-path search
+  // is complete, so when it fails it has *proved* there is no assignment, and
+  // the tool can say which it is.
+  function perfectMatching(allowed) {
+    var n = allowed.length;
+    var takenBy = [];
+    var i;
+    for (i = 0; i < n; i++) takenBy.push(-1);
+
+    function augment(giver, seen) {
+      // Randomised so that a solvable-but-tight list still gets a different
+      // answer each time rather than the same canonical one.
+      var order = R.shuffle(takenBy.map(function (_, idx) { return idx; }));
+      for (var k = 0; k < n; k++) {
+        var receiver = order[k];
+        if (!allowed[giver][receiver] || seen[receiver]) continue;
+        seen[receiver] = true;
+        if (takenBy[receiver] === -1 || augment(takenBy[receiver], seen)) {
+          takenBy[receiver] = giver;
+          return true;
+        }
+      }
+      return false;
+    }
+
+    for (i = 0; i < n; i++) {
+      var seen = [];
+      for (var j = 0; j < n; j++) seen.push(false);
+      if (!augment(i, seen)) return null; // proved: no assignment exists
+    }
+
+    var giving = [];
+    for (i = 0; i < n; i++) giving.push(-1);
+    for (i = 0; i < n; i++) giving[takenBy[i]] = i;
+    return giving;
+  }
+
+  // The fast path first: a plain shuffle is uniform over the valid assignments
+  // in a way an augmenting-path search is not, and with no exclusions it lands
+  // on the first or second go. The matching is the fallback and the arbiter.
+  function drawSanta(allowed) {
+    var n = allowed.length;
+    var indices = [];
+    var i;
+    for (i = 0; i < n; i++) indices.push(i);
+
+    for (var attempt = 0; attempt < 200; attempt++) {
+      var perm = R.shuffle(indices);
+      var ok = true;
+      for (i = 0; i < n; i++) {
+        if (!allowed[i][perm[i]]) { ok = false; break; }
+      }
+      if (ok) return { giving: perm, viaShuffle: true };
+    }
+
+    var matched = perfectMatching(allowed);
+    return matched ? { giving: matched, viaShuffle: false } : null;
+  }
+
+  function initSanta() {
+    var namesEl = $("ss-names");
+    if (!namesEl) return;
+
+    var exclusionsEl = $("ss-exclusions");
+    var generateBtn = $("ss-generate-btn");
+    var resultsEl = $("ss-results");
+    var messageEl = $("ss-message");
+    var setupEl = $("ss-setup");
+    var revealEl = $("ss-reveal");
+    var revealWhoEl = $("ss-reveal-who");
+    var revealBtn = $("ss-reveal-btn");
+    var revealNameEl = $("ss-reveal-name");
+    var copyAllInput = $("ss-all-links");
+    var copyAllBtn = $("ss-copy-all");
+    var copyAllWrap = $("ss-all-wrap");
+
+    // Someone opening their own link wants one name and nothing else: the
+    // organiser's whole workspace would spoil it, so it does not load.
+    var toParam = qsp.get("to");
+    if (toParam) {
+      var recipient = "";
+      var giver = "";
+      try {
+        recipient = decodeName(toParam);
+        if (qsp.get("who")) giver = decodeName(qsp.get("who"));
+      } catch (e) {
+        recipient = "";
+      }
+      if (recipient) {
+        setupEl.hidden = true;
+        revealEl.hidden = false;
+        revealWhoEl.textContent = giver ? giver + ", you are buying for…" : "You are buying for…";
+        revealBtn.addEventListener("click", function () {
+          revealNameEl.textContent = recipient;
+          revealNameEl.hidden = false;
+          revealBtn.hidden = true;
+        });
+        return;
+      }
+      messageEl.textContent = "That link could not be read. Ask whoever organised it to send it again.";
+    }
+
+    generateBtn.addEventListener("click", function () {
+      var names = parseList(namesEl.value);
+      messageEl.textContent = "";
+      resultsEl.innerHTML = "";
+      copyAllInput.value = "";
+      copyAllWrap.hidden = true;
+
+      if (names.length < 3) {
+        messageEl.textContent = "Secret Santa needs at least 3 people — with two, each would simply have the other.";
+        return;
+      }
+      if (names.length > 200) {
+        messageEl.textContent = "That is " + names.length + " people, and 200 is the limit here.";
+        return;
+      }
+
+      var lower = names.map(function (s) { return s.toLowerCase(); });
+      var dupes = names.filter(function (s, i) { return lower.indexOf(s.toLowerCase()) !== i; });
+      if (dupes.length) {
+        messageEl.textContent = "Two people are listed as “" + dupes[0] +
+          "”. Names have to be distinguishable, or nobody knows whose link is whose.";
+        return;
+      }
+
+      // Exclusions are "A, B" a line. Unknown names are the usual failure and
+      // they are worth naming, because a silent typo becomes a pairing someone
+      // was promised would not happen.
+      var pairs = [];
+      var unknown = [];
+      var malformed = 0;
+      parseList(exclusionsEl.value).forEach(function (line) {
+        var parts = line.split(",").map(function (s) { return s.trim(); }).filter(function (s) { return s.length; });
+        if (parts.length !== 2) { malformed++; return; }
+        var a = lower.indexOf(parts[0].toLowerCase());
+        var b = lower.indexOf(parts[1].toLowerCase());
+        if (a === -1) unknown.push(parts[0]);
+        if (b === -1) unknown.push(parts[1]);
+        if (a !== -1 && b !== -1 && a !== b) pairs.push([a, b]);
+      });
+      if (unknown.length) {
+        messageEl.textContent = "Not on the list: “" + unknown.join("”, “") +
+          "”. Check the spelling — an exclusion that does not match a name does nothing.";
+        return;
+      }
+      if (malformed) {
+        messageEl.textContent = "Each exclusion is two names on one line, separated by a comma — " +
+          malformed + (malformed === 1 ? " line is not." : " lines are not.");
+        return;
+      }
+
+      var allowed = allowedTable(names, pairs);
+      var drawn = drawSanta(allowed);
+      if (!drawn) {
+        messageEl.textContent = "These exclusions cannot all be met — there is no assignment at all, " +
+          "not merely a hard one. Someone has been ruled out of everybody, or a group has been " +
+          "fenced off so tightly that it cannot give outside itself. Remove an exclusion and try again.";
+        return;
+      }
+
+      var origin = window.location.origin;
+      var allLines = [];
+      names.forEach(function (giverName, i) {
+        var link = origin + "/secret-santa/?to=" + encodeName(names[drawn.giving[i]]) +
+          "&who=" + encodeName(giverName);
+        allLines.push(giverName + ": " + link);
+
+        var row = document.createElement("div");
+        row.className = "santa-row";
+        var who = document.createElement("span");
+        who.className = "santa-who";
+        who.textContent = giverName;
+        var input = document.createElement("input");
+        input.type = "text";
+        input.readOnly = true;
+        input.value = link;
+        input.setAttribute("aria-label", "Secret Santa link for " + giverName);
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn-ghost";
+        btn.textContent = "Copy";
+        wireCopyButton(btn, input);
+        row.appendChild(who);
+        row.appendChild(input);
+        row.appendChild(btn);
+        resultsEl.appendChild(row);
+      });
+      copyAllInput.value = allLines.join("\n");
+      copyAllWrap.hidden = false;
+    });
+
+    wireCopyButton(copyAllBtn, copyAllInput);
+  }
+
+  // -------------------------------------------------------------- rota --
+
+  // Deal whole rounds. Everybody appears once per round, so after any number of
+  // slots the busiest person is at most one turn ahead of the quietest — that
+  // is what "evenly" has to mean, and picking a name at random per slot does
+  // not give it. Within a round nobody repeats; the only place a repeat can
+  // happen is across a round boundary, so that is the only place to look.
+  function buildRota(people, slotCount, avoidRepeat) {
+    var out = [];
+    while (out.length < slotCount) {
+      var round = R.shuffle(people);
+      if (avoidRepeat && out.length && round.length > 1 && round[0] === out[out.length - 1]) {
+        var j = R.int(1, round.length - 1);
+        var tmp = round[0];
+        round[0] = round[j];
+        round[j] = tmp;
+      }
+      for (var i = 0; i < round.length && out.length < slotCount; i++) out.push(round[i]);
+    }
+    return out;
+  }
+
+  function initRota() {
+    var peopleEl = $("ro-people");
+    if (!peopleEl) return;
+
+    var slotsCountEl = $("ro-slots");
+    var slotNamesEl = $("ro-slot-names");
+    var avoidEl = $("ro-avoid");
+    var generateBtn = $("ro-generate-btn");
+    var resultsEl = $("ro-results");
+    var tallyEl = $("ro-tally");
+    var messageEl = $("ro-message");
+    var shareInput = $("ro-share-url");
+    var shareBtn = $("ro-copy-link");
+
+    var peopleParam = qsp.get("people");
+    var slotsParam = qsp.get("slots");
+    if (peopleParam) {
+      peopleEl.value = peopleParam.split(",").map(function (s) { return decodeURIComponent(s.trim()); }).join("\n");
+    }
+    if (slotsParam) slotsCountEl.value = slotsParam;
+    if (qsp.get("norepeat") === "0") avoidEl.checked = false;
+
+    function updateShare() {
+      setShareUrl(shareInput, "/rota-builder", {
+        people: parseList(peopleEl.value).map(encodeURIComponent).join(","),
+        slots: slotsCountEl.value,
+        norepeat: avoidEl.checked ? "" : "0",
+      });
+    }
+    peopleEl.addEventListener("input", updateShare);
+    slotsCountEl.addEventListener("input", updateShare);
+    avoidEl.addEventListener("change", updateShare);
+
+    generateBtn.addEventListener("click", function () {
+      var people = parseList(peopleEl.value);
+      var labels = parseList(slotNamesEl.value);
+      var slotCount = labels.length || Math.max(1, Math.min(365, parseInt(slotsCountEl.value, 10) || 12));
+      messageEl.textContent = "";
+      resultsEl.innerHTML = "";
+      tallyEl.innerHTML = "";
+
+      if (!people.length) {
+        messageEl.textContent = "Add the people who are in the rota.";
+        return;
+      }
+      var avoid = avoidEl.checked;
+      if (avoid && people.length < 2) {
+        messageEl.textContent = "With one person on the list every slot is theirs, so nobody can avoid going twice in a row. Turned that off for this run.";
+        avoid = false;
+      }
+
+      var rota = buildRota(people, slotCount, avoid);
+
+      rota.forEach(function (person, i) {
+        var row = document.createElement("div");
+        row.className = "rota-row";
+        var slot = document.createElement("span");
+        slot.className = "rota-slot";
+        slot.textContent = labels.length ? labels[i] : "Slot " + (i + 1);
+        var who = document.createElement("span");
+        who.className = "rota-who";
+        who.textContent = person;
+        row.appendChild(slot);
+        row.appendChild(who);
+        resultsEl.appendChild(row);
+      });
+
+      // The count is the claim the tool is making, so it prints it.
+      var counts = {};
+      rota.forEach(function (p) { counts[p] = (counts[p] || 0) + 1; });
+      people.forEach(function (p) {
+        var li = document.createElement("li");
+        li.textContent = p + " × " + (counts[p] || 0);
+        tallyEl.appendChild(li);
+      });
+      updateShare();
+    });
+
+    wireCopyButton(shareBtn, shareInput);
+    updateShare();
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     initWheel();
     initNamePicker();
@@ -619,5 +1189,8 @@
     initCoin();
     initRng();
     initTeams();
+    initBracket();
+    initSanta();
+    initRota();
   });
 })();
