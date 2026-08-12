@@ -484,38 +484,156 @@ FAVICON = 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBo
 THEME_ICON = '<svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 119.5 4a7 7 0 0010.5 10.5z"/></svg>'
 
 
-def nav_items(current):
-    items = []
-    home_current = current is None
-    items.append(
-        '<li><a href="/" data-panel-link=""{cur}>Home</a></li>'.format(
-            cur=' aria-current="page"' if home_current else ""
-        )
+# ---------------------------------------------------------------- nav --
+# The portfolio toolbar (ngineer420.github.io#13): one <nav class="toolbar">,
+# a direct child of <body> immediately after </header> and always above
+# <main>. A labelled, counted <details> trigger pinned left that never
+# scrolls, and one non-wrapping row of tool chips that does.
+#
+# What it replaces here: ten links in a wrapping flex list that never fitted
+# one row at any desktop width — two rows and an 80px header at 1024 through
+# 1920, three rows and 122px in the 768-860px band just above the hamburger
+# breakpoint — plus, below that breakpoint, a 422px JS-toggled overlay drawer.
+# The labels are why: "Tournament Bracket Generator" and "Random Number
+# Generator" can never sit in a row with seven others. The rail carries short
+# chips and the sheet carries the full names, so nothing is lost.
+#
+# It is not sticky and neither is the header, so nothing in the chrome can
+# overlay an AdSense anchor unit or an in-content placement.
+
+NAV_NOUN = "tools"
+
+# The rail chip for each tool: <= 18 characters, because a chip is a label in
+# a row and not a page title. The full name is what the sheet, the tool grid
+# and every in-body link use, so the long form is never lost. Kept out of the
+# TOOLS dicts, which each carry a screenful of workspace markup, so the whole
+# rail can be read and re-ordered in one place.
+NAV_LABEL = {
+    "spinner-wheel": "Spinner",
+    "random-name-picker": "Names",
+    "dice-roller": "Dice",
+    "coin-flip": "Coin",
+    "random-number-generator": "Numbers",
+    "team-generator": "Teams",
+    "tournament-bracket": "Bracket",
+    "secret-santa": "Secret Santa",
+    "rota-builder": "Rota",
+}
+
+# Sheet groups, in order: (key, label, members). Named for what a visitor came
+# to do, never for how the tools are built. Nine destinations, so the sheet is
+# grouped — the renderer's rule is flat at <= 8 and named groups at 9+, and it
+# is never hand-forced either way.
+NAV_GROUPS = [
+    ("Draw one", ["spinner-wheel", "random-name-picker", "dice-roller", "coin-flip",
+                  "random-number-generator"]),
+    ("Draw for a group", ["team-generator", "tournament-bracket", "secret-santa",
+                          "rota-builder"]),
+]
+
+SKIP_LINK = '  <a class="skip-link" href="#main">Skip to the tool</a>'
+
+
+def esc(text):
+    """Anchor and label text is data, so it gets escaped on the way out."""
+    return (
+        text.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
     )
-    for t in TOOLS:
-        cur = current == t["slug"]
-        items.append(
-            '<li><a href="{url}" data-panel-link="{slug}"{cur}>{name}</a></li>'.format(
-                url=clean_url(t["slug"]), slug=t["slug"], name=t["name"],
-                cur=' aria-current="page"' if cur else ""
-            )
+
+
+def nav_anchor(slug, text, current):
+    """One toolbar anchor, carrying the page's only per-page difference.
+
+    `data-panel-link` stays on it: on the homepage, which owns a panel for
+    every tool, app.js intercepts a plain left click and swaps the panel in
+    place. Everywhere else `panelFor()` finds nothing and the anchor navigates
+    normally, which is also what a crawler and a JS-disabled visitor get.
+    """
+    url = clean_url(slug)
+    mark = ' aria-current="page"' if url == current else ""
+    return '<a href="{url}" data-panel-link="{slug}"{mark}>{text}</a>'.format(
+        url=esc(url), slug=esc(slug), mark=mark, text=esc(text)
+    )
+
+
+def toolbar(current):
+    """The toolbar for the page whose canonical path is `current`.
+
+    Home is the brand, so it never takes a slot here — the old nav spent one
+    of its ten on it — and Privacy and Terms live in the footer. The sheet
+    lists every rail destination, so the rail is never the only route to
+    anything: the ninth tool is sheet-only because the rail's cap is eight.
+    """
+    rail = TOOLS[:8]
+
+    lines = []
+    for i, (title, members) in enumerate(NAV_GROUPS, start=1):
+        gid = "tb-g{}".format(i)
+        # <p>, not <h2>: these are SEO landing pages and a chrome heading
+        # would pollute the document outline. AT still announces the list.
+        lines.append(
+            '          <p class="tb-grouplabel" id="{id}">{t}</p>'.format(id=gid, t=esc(title))
         )
-    return "\n      ".join(items)
+        lines.append('          <ul aria-labelledby="{id}">'.format(id=gid))
+        lines += [
+            "            <li>{}</li>".format(
+                nav_anchor(s, TOOLS_BY_SLUG[s]["name"], current)
+            )
+            for s in members
+        ]
+        lines.append("          </ul>")
+
+    chips = "\n".join(
+        "      <li>{}</li>".format(nav_anchor(t["slug"], NAV_LABEL[t["slug"]], current))
+        for t in rail
+    )
+
+    return """  <nav class="toolbar" aria-label="Tools">
+    <details class="tb-menu">
+      <summary class="tb-trigger" aria-label="All {count} {noun}">
+        <span class="tb-glyph" aria-hidden="true">&#9636;</span>
+        <span class="tb-label">All {count}<span class="tb-label-long"> {noun}</span></span>
+      </summary>
+      <div class="tb-sheet">
+        <div class="tb-sheet-cols">
+{sheet}
+        </div>
+      </div>
+    </details>
+    <div class="tb-scrim"></div>
+    <ul class="tb-rail">
+{chips}
+    </ul>
+  </nav>""".format(
+        count=len(TOOLS),
+        noun=esc(NAV_NOUN),
+        sheet="\n".join(lines),
+        chips=chips,
+    )
 
 
-def header(current):
+def header():
+    """Brand and the theme toggle. Zero links, no hamburger, not sticky.
+
+    Everything that used to live here is in the toolbar underneath it, which
+    shows the peers the drawer hid.
+    """
     return """  <header class="site-header">
     <div class="wrap">
       <a href="/" class="wordmark" data-panel-link="">draw<span class="dot">&bull;</span>lots</a>
-      <ul class="tool-nav" id="tool-nav">
-      {nav}
-      </ul>
       <div class="header-controls">
-        <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="tool-nav" aria-label="Toggle menu">&#9776;</button>
         <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle light and dark theme">{icon}</button>
       </div>
     </div>
-  </header>""".format(nav=nav_items(current), icon=THEME_ICON)
+  </header>""".format(icon=THEME_ICON)
+
+
+def chrome(current):
+    """Everything between <body> and <main>, in order, on every page."""
+    return "\n".join([SKIP_LINK, header(), toolbar(current)])
 
 
 def footer():
@@ -642,7 +760,7 @@ def tool_page(tool):
 
     body = """<body data-tool="{slug}">
 {header}
-  <main>
+  <main id="main">
     <section class="panel">
       <div class="wrap">
         <div class="panel-head">
@@ -689,7 +807,7 @@ def tool_page(tool):
 {scripts}
 </body>""".format(
         slug=tool["slug"],
-        header=header(tool["slug"]),
+        header=chrome(clean_url(tool["slug"])),
         name=tool["name"],
         intro=tool["intro"],
         workspace=tool["workspace"],
@@ -757,7 +875,7 @@ def homepage():
 
     body = """<body>
 {header}
-  <main>
+  <main id="main">
     <section class="hero">
       <div class="wrap">
         <div>
@@ -791,7 +909,7 @@ def homepage():
 {footer}
 {scripts}
 </body>""".format(
-        header=header(None),
+        header=chrome("/"),
         lots=HERO_LOTS_SVG,
         cards=cards_html,
         panels=panels_html,
@@ -828,7 +946,7 @@ def legal_page(slug, title_text, body_html):
     )
     body = """<body>
 {header}
-  <main>
+  <main id="main">
     <section class="doc-page">
       <div class="wrap">
 {content}
@@ -837,7 +955,7 @@ def legal_page(slug, title_text, body_html):
   </main>
 {footer}
 {scripts}
-</body>""".format(header=header("other"), content=body_html, footer=footer(), scripts=scripts_tail())
+</body>""".format(header=chrome(None), content=body_html, footer=footer(), scripts=scripts_tail())
     html = "<!doctype html>\n<html lang=\"en\">\n" + head(title, description, canonical_path, json_ld) + "\n" + body + "\n</html>\n"
     write_clean(slug, html)
 
@@ -888,7 +1006,7 @@ def not_found_page():
     )
     body = """<body>
 {header}
-  <main>
+  <main id="main">
     <section class="doc-page">
       <div class="wrap">
         <h1>404 &mdash; nothing here</h1>
@@ -899,7 +1017,7 @@ def not_found_page():
   </main>
 {footer}
   <script src="/assets/app.js"></script>
-</body>""".format(header=header("other"), footer=footer())
+</body>""".format(header=chrome(None), footer=footer())
     html = "<!doctype html>\n<html lang=\"en\">\n" + head(title, description, "/404.html", json_ld, include_ads=False) + "\n" + body + "\n</html>\n"
     write("404.html", html)
 
@@ -1002,7 +1120,7 @@ def article_page(article):
 
     body = """<body>
 {header}
-  <main>
+  <main id="main">
     <section class="article-page">
       <div class="wrap">
         <h1>{title}</h1>
@@ -1015,7 +1133,7 @@ def article_page(article):
 {footer}
 {scripts}
 </body>""".format(
-        header=header("other"), title=article["title"], published=article["published"],
+        header=chrome(None), title=article["title"], published=article["published"],
         content=article["body"], footer=footer(), scripts=scripts_tail(),
     )
     html = "<!doctype html>\n<html lang=\"en\">\n" + head(title, article["description"], canonical_path, json_ld) + "\n" + body + "\n</html>\n"
@@ -1039,7 +1157,7 @@ def article_hub():
         )
     body = """<body>
 {header}
-  <main>
+  <main id="main">
     <section class="article-hub">
       <div class="wrap">
         <h1>Articles</h1>
@@ -1052,7 +1170,7 @@ def article_hub():
   </main>
 {footer}
 {scripts}
-</body>""".format(header=header("other"), items="\n".join(items), footer=footer(), scripts=scripts_tail())
+</body>""".format(header=chrome(None), items="\n".join(items), footer=footer(), scripts=scripts_tail())
     html = "<!doctype html>\n<html lang=\"en\">\n" + head(title, description, canonical_path, json_ld) + "\n" + body + "\n</html>\n"
     write("articles/index.html", html)
 
