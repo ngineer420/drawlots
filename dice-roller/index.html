@@ -110,6 +110,18 @@
       <input type="text" id="dr-share-url" readonly aria-label="Shareable link for this setup">
       <button type="button" class="btn-ghost" id="dr-copy-link">Copy link</button>
     </div>
+    <section class="history" id="dr-history" aria-label="History">
+      <div class="history-head">
+        <h3>History <span class="history-count" id="dr-history-count"></span></h3>
+        <div class="history-actions">
+          <button type="button" class="btn-ghost btn-small" id="dr-history-copy" disabled>Copy history</button>
+          <button type="button" class="btn-ghost btn-small" id="dr-history-clear" disabled>Clear history</button>
+        </div>
+      </div>
+      <p class="history-note" id="dr-history-note"></p>
+      <p class="history-empty" id="dr-history-empty">No rolls yet on this device. Every result lands here, and the last 100 stay after a reload.</p>
+      <ol class="history-list" id="dr-history-list"></ol>
+    </section>
         </div>
       </div>
     </section>

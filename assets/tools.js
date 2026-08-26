@@ -34,30 +34,294 @@
     input.value = url.toString();
   }
 
+  function flashLabel(btn, label) {
+    var original = btn.textContent;
+    btn.textContent = label;
+    setTimeout(function () { btn.textContent = original; }, 1600);
+  }
+
+  // Copies text to the clipboard. When the async clipboard is missing or
+  // refused, a temporary textarea and execCommand do the same job.
+  function copyText(text, done) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text, done); });
+    } else {
+      fallbackCopy(text, done);
+    }
+  }
+
+  function fallbackCopy(text, done) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "readonly");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+    done();
+  }
+
   function wireCopyButton(btn, input) {
     if (!btn || !input) return;
     btn.addEventListener("click", function () {
-      var text = input.value;
-      var done = function () {
-        var original = btn.textContent;
-        btn.textContent = "Copied!";
-        setTimeout(function () { btn.textContent = original; }, 1600);
-      };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(input, done); });
-      } else {
-        fallbackCopy(input, done);
-      }
+      copyText(input.value, function () { flashLabel(btn, "Copied!"); });
     });
   }
 
-  function fallbackCopy(input, done) {
-    input.removeAttribute("readonly");
-    input.focus();
-    input.select();
-    try { document.execCommand("copy"); } catch (e) {}
-    input.setAttribute("readonly", "readonly");
-    done();
+  // ------------------------------------------------------------- storage --
+  // Every localStorage call goes through these helpers. Private mode and a
+  // full quota throw, and each tool must keep working with no memory at all.
+
+  var LISTS_KEY = "drawlots-lists";
+  var HISTORY_KEY = "drawlots-history";
+  var DRAFT_PREFIX = "drawlots-draft:";
+  var HISTORY_MAX = 100;
+  var WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+  function storeRead(key, fallback) {
+    try {
+      var raw = localStorage.getItem(key);
+      if (raw == null) return fallback;
+      return JSON.parse(raw);
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function storeWrite(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Restores the autosaved draft of a textarea. A value that came from the
+  // URL wins, so a shared link always shows its own list. The returned save()
+  // runs after every change, including programmatic ones such as
+  // "Remove winner after spin". It does not run on load, so a shared link
+  // never overwrites the draft of the visitor who opened it.
+  function restoreDraft(el, slug, hasUrlValue) {
+    var key = DRAFT_PREFIX + slug;
+    if (!hasUrlValue) {
+      var draft = storeRead(key, null);
+      if (typeof draft === "string") el.value = draft;
+    }
+    return {
+      save: function () { storeWrite(key, el.value); },
+    };
+  }
+
+  // ---------------------------------------------------------- saved lists --
+  // The name picker, the wheel and the team generator share one store, so a
+  // list saved on one tool is one click away on the others. The homepage
+  // holds all three controls at once, so every save re-renders every menu.
+
+  var savedListMenus = [];
+
+  function readLists() {
+    var lists = storeRead(LISTS_KEY, []);
+    return Array.isArray(lists) ? lists : [];
+  }
+
+  function refreshSavedListMenus() {
+    savedListMenus.forEach(function (render) { render(); });
+  }
+
+  function initSavedLists(prefix, textarea, onLoad) {
+    var select = $(prefix + "-saved-select");
+    var nameEl = $(prefix + "-list-name");
+    var saveBtn = $(prefix + "-save-list");
+    var deleteBtn = $(prefix + "-delete-list");
+    var messageEl = $(prefix + "-saved-message");
+    if (!select || !nameEl || !saveBtn || !deleteBtn) return;
+
+    function findList(name) {
+      var lists = readLists();
+      for (var i = 0; i < lists.length; i++) {
+        if (lists[i].name === name) return lists[i];
+      }
+      return null;
+    }
+
+    function render() {
+      var lists = readLists();
+      var selected = select.value;
+      select.innerHTML = "";
+      var none = document.createElement("option");
+      none.value = "";
+      none.textContent = lists.length ? "Choose a saved list" : "No saved lists yet";
+      select.appendChild(none);
+      lists.forEach(function (list) {
+        var opt = document.createElement("option");
+        opt.value = list.name;
+        opt.textContent = list.name + " (" + list.entries.length + ")";
+        select.appendChild(opt);
+      });
+      select.value = findList(selected) ? selected : "";
+      deleteBtn.disabled = !select.value;
+    }
+
+    saveBtn.addEventListener("click", function () {
+      var name = nameEl.value.trim() || select.value;
+      var entries = parseList(textarea.value);
+      if (!name) {
+        messageEl.textContent = "Type a name for the list, for example Period 3.";
+        nameEl.focus();
+        return;
+      }
+      if (!entries.length) {
+        messageEl.textContent = "Add at least one entry before you save.";
+        return;
+      }
+      var lists = readLists().filter(function (list) { return list.name !== name; });
+      lists.push({ name: name, entries: entries, updatedAt: new Date().toISOString() });
+      lists.sort(function (a, b) { return a.name.localeCompare(b.name); });
+      if (!storeWrite(LISTS_KEY, lists)) {
+        messageEl.textContent = "This browser blocks storage, so the list cannot be saved. Use “Copy link” instead.";
+        return;
+      }
+      nameEl.value = name;
+      refreshSavedListMenus();
+      select.value = name;
+      deleteBtn.disabled = false;
+      messageEl.textContent = "Saved “" + name + "” with " + entries.length + (entries.length === 1 ? " entry." : " entries.");
+    });
+
+    select.addEventListener("change", function () {
+      var list = findList(select.value);
+      deleteBtn.disabled = !list;
+      if (!list) return;
+      textarea.value = list.entries.join("\n");
+      nameEl.value = list.name;
+      messageEl.textContent = "";
+      onLoad();
+    });
+
+    deleteBtn.addEventListener("click", function () {
+      var name = select.value;
+      if (!name) return;
+      storeWrite(LISTS_KEY, readLists().filter(function (list) { return list.name !== name; }));
+      nameEl.value = "";
+      select.value = "";
+      refreshSavedListMenus();
+      messageEl.textContent = "Deleted “" + name + "”.";
+    });
+
+    savedListMenus.push(render);
+    render();
+  }
+
+  // -------------------------------------------------------------- history --
+  // One log keeps the last 100 results of every tool. Each panel shows the
+  // results of its own tool. When storage is blocked, the log lives in this
+  // page only and still shows the results of the current visit.
+
+  var TOOL_LABELS = {
+    "random-name-picker": "Name picker",
+    "spinner-wheel": "Spinner wheel",
+    "dice-roller": "Dice roller",
+    "team-generator": "Team generator",
+  };
+  var historyPanels = [];
+  var historyCache = null;
+
+  function readHistory() {
+    if (historyCache === null) {
+      var log = storeRead(HISTORY_KEY, []);
+      historyCache = Array.isArray(log) ? log : [];
+    }
+    return historyCache;
+  }
+
+  function writeHistory(log) {
+    historyCache = log;
+    storeWrite(HISTORY_KEY, log);
+    historyPanels.forEach(function (render) { render(); });
+  }
+
+  function logPick(tool, entry) {
+    var log = readHistory().concat([{ entry: entry, tool: tool, at: new Date().toISOString() }]);
+    if (log.length > HISTORY_MAX) log = log.slice(log.length - HISTORY_MAX);
+    writeHistory(log);
+  }
+
+  function formatWhen(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + " " +
+      d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+  }
+
+  // currentEntries is optional. When given, the panel names the entries of
+  // the current list that were already picked in the last seven days.
+  function initHistory(prefix, tool, currentEntries) {
+    var root = $(prefix + "-history");
+    if (!root) return { render: function () {} };
+    var listEl = $(prefix + "-history-list");
+    var countEl = $(prefix + "-history-count");
+    var noteEl = $(prefix + "-history-note");
+    var emptyEl = $(prefix + "-history-empty");
+    var copyBtn = $(prefix + "-history-copy");
+    var clearBtn = $(prefix + "-history-clear");
+
+    function items() {
+      return readHistory().filter(function (h) { return h.tool === tool; }).reverse();
+    }
+
+    function render() {
+      var mine = items();
+      listEl.innerHTML = "";
+      mine.forEach(function (h) {
+        var li = document.createElement("li");
+        var entry = document.createElement("span");
+        entry.className = "history-entry";
+        entry.textContent = h.entry;
+        var when = document.createElement("span");
+        when.className = "history-when";
+        when.textContent = formatWhen(h.at);
+        li.appendChild(entry);
+        li.appendChild(when);
+        listEl.appendChild(li);
+      });
+      countEl.textContent = mine.length ? String(mine.length) : "";
+      emptyEl.hidden = mine.length > 0;
+      copyBtn.disabled = !mine.length;
+      clearBtn.disabled = !mine.length;
+
+      if (!currentEntries) return;
+      var since = Date.now() - WEEK_MS;
+      var recent = {};
+      mine.forEach(function (h) {
+        if (Date.parse(h.at) >= since) recent[h.entry] = true;
+      });
+      var seen = {};
+      var picked = currentEntries().filter(function (name) {
+        if (!recent[name] || seen[name]) return false;
+        seen[name] = true;
+        return true;
+      });
+      noteEl.textContent = picked.length ? "Already picked this week: " + picked.join(", ") : "";
+    }
+
+    copyBtn.addEventListener("click", function () {
+      var text = items().map(function (h) {
+        return formatWhen(h.at) + " \u00b7 " + TOOL_LABELS[tool] + " \u00b7 " + h.entry;
+      }).join("\n");
+      copyText(text, function () { flashLabel(copyBtn, "Copied!"); });
+    });
+
+    clearBtn.addEventListener("click", function () {
+      writeHistory(readHistory().filter(function (h) { return h.tool !== tool; }));
+    });
+
+    historyPanels.push(render);
+    render();
+    return { render: render };
   }
 
   // Rapidly cycles el's text through random candidates, decelerating into
@@ -106,6 +370,7 @@
     if (sizeParam) {
       entriesEl.value = sizeParam.split(",").map(function (s) { return decodeURIComponent(s.trim()); }).join("\n");
     }
+    var draft = restoreDraft(entriesEl, "spinner-wheel", !!sizeParam);
 
     var SIZE = 340;
     canvas.width = SIZE;
@@ -152,12 +417,16 @@
 
     function updateShare() {
       setShareUrl(shareInput, "/spinner-wheel", { entries: getEntries().map(encodeURIComponent).join(",") });
+      historyPanel.render();
     }
-
-    entriesEl.addEventListener("input", function () {
+    function entriesChanged() {
       draw();
       updateShare();
-    });
+      draft.save();
+    }
+    var historyPanel = initHistory("sw", "spinner-wheel", getEntries);
+    initSavedLists("sw", entriesEl, entriesChanged);
+    entriesEl.addEventListener("input", entriesChanged);
 
     spinBtn.addEventListener("click", function () {
       if (spinning) return;
@@ -190,6 +459,7 @@
         winnerText.textContent = entries[targetIndex];
         resultEl.hidden = false;
         resultEl.classList.add("is-live");
+        logPick("spinner-wheel", entries[targetIndex]);
         if (removeWinnerEl && removeWinnerEl.checked) {
           var remaining = entries.slice();
           remaining.splice(targetIndex, 1);
@@ -197,8 +467,7 @@
           canvas.style.transition = "none";
           rotation = 0;
           canvas.style.transform = "rotate(0deg)";
-          draw();
-          updateShare();
+          entriesChanged();
           // force reflow so the next spin's transition re-applies
           void canvas.offsetHeight;
           canvas.style.transition = "";
@@ -247,11 +516,19 @@
     if (namesParam) {
       namesEl.value = namesParam.split(",").map(function (s) { return decodeURIComponent(s.trim()); }).join("\n");
     }
+    var draft = restoreDraft(namesEl, "random-name-picker", !!namesParam);
 
     function updateShare() {
       setShareUrl(shareInput, "/random-name-picker", { names: parseList(namesEl.value).map(encodeURIComponent).join(",") });
+      historyPanel.render();
     }
-    namesEl.addEventListener("input", updateShare);
+    function namesChanged() {
+      updateShare();
+      draft.save();
+    }
+    namesEl.addEventListener("input", namesChanged);
+    var historyPanel = initHistory("np", "random-name-picker", function () { return parseList(namesEl.value); });
+    initSavedLists("np", namesEl, namesChanged);
 
     pickBtn.addEventListener("click", function () {
       var names = parseList(namesEl.value);
@@ -270,11 +547,12 @@
         onDone: function () {
           resultEl.classList.add("is-live");
           pickBtn.removeAttribute("disabled");
+          logPick("random-name-picker", winner);
           if (removeWinnerEl && removeWinnerEl.checked) {
             var remaining = names.slice();
             remaining.splice(winnerIndex, 1);
             namesEl.value = remaining.join("\n");
-            updateShare();
+            namesChanged();
           }
         },
       });
@@ -342,6 +620,7 @@
     }
     countEl.addEventListener("change", updateShare);
     sidesEl.addEventListener("change", updateShare);
+    initHistory("dr", "dice-roller");
 
     function renderInitial() {
       tray.innerHTML = "";
@@ -370,6 +649,7 @@
 
       totalEl.textContent = String(total);
       totalWrap.hidden = false;
+      logPick("dice-roller", values.join(" + ") + (count > 1 ? " = " + total : "") + " (" + count + "d" + sides + ")");
       updateShare();
     });
 
@@ -562,6 +842,7 @@
       namesEl.value = namesParam.split(",").map(function (s) { return decodeURIComponent(s.trim()); }).join("\n");
     }
     if (teamsParam) teamsCountEl.value = teamsParam;
+    var draft = restoreDraft(namesEl, "team-generator", !!namesParam);
 
     function updateShare() {
       setShareUrl(shareInput, "/team-generator", {
@@ -569,8 +850,14 @@
         teams: teamsCountEl.value,
       });
     }
-    namesEl.addEventListener("input", updateShare);
+    function namesChanged() {
+      updateShare();
+      draft.save();
+    }
+    namesEl.addEventListener("input", namesChanged);
     teamsCountEl.addEventListener("input", updateShare);
+    initHistory("tg", "team-generator");
+    initSavedLists("tg", namesEl, namesChanged);
 
     generateBtn.addEventListener("click", function () {
       var names = parseList(namesEl.value);
@@ -605,6 +892,9 @@
         card.appendChild(ul);
         resultsEl.appendChild(card);
       });
+      logPick("team-generator", teams.map(function (members, i) {
+        return "Team " + (i + 1) + ": " + members.join(", ");
+      }).join(" \u00b7 "));
       updateShare();
     });
 

@@ -86,6 +86,18 @@
         <div class="wheel-hub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg></div>
       </div>
     </div>
+    <div class="saved-lists">
+      <label for="sw-saved-select">Saved lists</label>
+      <div class="saved-lists-row">
+        <select id="sw-saved-select"><option value="">No saved lists yet</option></select>
+        <button type="button" class="btn-ghost" id="sw-delete-list" disabled>Delete</button>
+      </div>
+      <div class="saved-lists-row">
+        <input type="text" id="sw-list-name" maxlength="60" placeholder="Name this list, for example Period 3" aria-label="Name for the saved list">
+        <button type="button" class="btn-ghost" id="sw-save-list">Save list</button>
+      </div>
+      <p class="saved-lists-message" id="sw-saved-message" role="status"></p>
+    </div>
     <div class="field">
       <label for="sw-entries">Entries (one per line)</label>
       <textarea id="sw-entries" rows="6">Pizza
@@ -108,6 +120,18 @@ Ramen</textarea>
       <input type="text" id="sw-share-url" readonly aria-label="Shareable link for this wheel">
       <button type="button" class="btn-ghost" id="sw-copy-link">Copy link</button>
     </div>
+    <section class="history" id="sw-history" aria-label="History">
+      <div class="history-head">
+        <h3>History <span class="history-count" id="sw-history-count"></span></h3>
+        <div class="history-actions">
+          <button type="button" class="btn-ghost btn-small" id="sw-history-copy" disabled>Copy history</button>
+          <button type="button" class="btn-ghost btn-small" id="sw-history-clear" disabled>Clear history</button>
+        </div>
+      </div>
+      <p class="history-note" id="sw-history-note"></p>
+      <p class="history-empty" id="sw-history-empty">No spins yet on this device. Every result lands here, and the last 100 stay after a reload.</p>
+      <ol class="history-list" id="sw-history-list"></ol>
+    </section>
         </div>
       </div>
     </section>
@@ -137,7 +161,7 @@ Ramen</textarea>
         <dt>Can I send this exact wheel to someone else?</dt>
         <dd>Yes — click “Copy link” and your current list of entries is encoded right into the URL. Opening that link loads the same wheel, ready to spin.</dd>
         <dt>Does spinning save or upload my list anywhere?</dt>
-        <dd>No. Everything — the list, the random draw, the animation — runs in your browser tab. Nothing is sent anywhere unless you choose to share the link yourself.</dd>
+        <dd>Nothing is uploaded. Everything — the list, the random draw, the animation — runs in your browser. Saved lists, the current draft and the spin history live in this browser's local storage on your device. Nothing is sent anywhere unless you choose to share the link yourself.</dd>
         </dl>
       </div>
     </section>
@@ -164,7 +188,7 @@ Ramen</textarea>
     </div>
   </footer>
 <a href="https://erabb.it" class="erabbit-mark" aria-label="erabb.it"><img src="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐇</text></svg>" width="10" height="10" alt=""></a>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is the spin actually random, or just an animation?","acceptedAnswer":{"@type":"Answer","text":"The winning entry is chosen first, using crypto.getRandomValues (the same cryptographic randomness browsers use for security), and the wheel's spin animation is calculated to land on that already-chosen result. The spin is theater; the choice is not."}},{"@type":"Question","name":"How many entries can I add?","acceptedAnswer":{"@type":"Answer","text":"As many as fit on one line each \u2014 the wheel redraws itself to fit any number of segments, though it reads best with 20 or fewer."}},{"@type":"Question","name":"Can I send this exact wheel to someone else?","acceptedAnswer":{"@type":"Answer","text":"Yes \u2014 click \u201cCopy link\u201d and your current list of entries is encoded right into the URL. Opening that link loads the same wheel, ready to spin."}},{"@type":"Question","name":"Does spinning save or upload my list anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Everything \u2014 the list, the random draw, the animation \u2014 runs in your browser tab. Nothing is sent anywhere unless you choose to share the link yourself."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is the spin actually random, or just an animation?","acceptedAnswer":{"@type":"Answer","text":"The winning entry is chosen first, using crypto.getRandomValues (the same cryptographic randomness browsers use for security), and the wheel's spin animation is calculated to land on that already-chosen result. The spin is theater; the choice is not."}},{"@type":"Question","name":"How many entries can I add?","acceptedAnswer":{"@type":"Answer","text":"As many as fit on one line each \u2014 the wheel redraws itself to fit any number of segments, though it reads best with 20 or fewer."}},{"@type":"Question","name":"Can I send this exact wheel to someone else?","acceptedAnswer":{"@type":"Answer","text":"Yes \u2014 click \u201cCopy link\u201d and your current list of entries is encoded right into the URL. Opening that link loads the same wheel, ready to spin."}},{"@type":"Question","name":"Does spinning save or upload my list anywhere?","acceptedAnswer":{"@type":"Answer","text":"Nothing is uploaded. Everything \u2014 the list, the random draw, the animation \u2014 runs in your browser. Saved lists, the current draft and the spin history live in this browser's local storage on your device. Nothing is sent anywhere unless you choose to share the link yourself."}}]}</script>
   <script src="/assets/random.js"></script>
   <script src="/assets/tools.js"></script>
   <script src="/assets/app.js"></script>

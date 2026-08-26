@@ -21,6 +21,40 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 SITE = "https://drawlots.net"
 TODAY = "2026-07-18"
 
+# --------------------------------------------------- shared workspace parts --
+
+# The three list tools share one store of saved lists, so a list saved on the
+# name picker is one click away on the wheel and the team generator.
+SAVED_LISTS = """    <div class="saved-lists">
+      <label for="{p}-saved-select">Saved lists</label>
+      <div class="saved-lists-row">
+        <select id="{p}-saved-select"><option value="">No saved lists yet</option></select>
+        <button type="button" class="btn-ghost" id="{p}-delete-list" disabled>Delete</button>
+      </div>
+      <div class="saved-lists-row">
+        <input type="text" id="{p}-list-name" maxlength="60" placeholder="Name this list, for example Period 3" aria-label="Name for the saved list">
+        <button type="button" class="btn-ghost" id="{p}-save-list">Save list</button>
+      </div>
+      <p class="saved-lists-message" id="{p}-saved-message" role="status"></p>
+    </div>
+"""
+
+# One history log holds the last 100 results of every tool. Each panel shows
+# the results of its own tool.
+HISTORY_PANEL = """    <section class="history" id="{p}-history" aria-label="History">
+      <div class="history-head">
+        <h3>History <span class="history-count" id="{p}-history-count"></span></h3>
+        <div class="history-actions">
+          <button type="button" class="btn-ghost btn-small" id="{p}-history-copy" disabled>Copy history</button>
+          <button type="button" class="btn-ghost btn-small" id="{p}-history-clear" disabled>Clear history</button>
+        </div>
+      </div>
+      <p class="history-note" id="{p}-history-note"></p>
+      <p class="history-empty" id="{p}-history-empty">No {noun} yet on this device. Every result lands here, and the last 100 stay after a reload.</p>
+      <ol class="history-list" id="{p}-history-list"></ol>
+    </section>
+"""
+
 # ---------------------------------------------------------------- tools --
 
 TOOLS = [
@@ -41,7 +75,7 @@ TOOLS = [
             ("Is the spin actually random, or just an animation?", "The winning entry is chosen first, using crypto.getRandomValues (the same cryptographic randomness browsers use for security), and the wheel's spin animation is calculated to land on that already-chosen result. The spin is theater; the choice is not."),
             ("How many entries can I add?", "As many as fit on one line each — the wheel redraws itself to fit any number of segments, though it reads best with 20 or fewer."),
             ("Can I send this exact wheel to someone else?", "Yes — click “Copy link” and your current list of entries is encoded right into the URL. Opening that link loads the same wheel, ready to spin."),
-            ("Does spinning save or upload my list anywhere?", "No. Everything — the list, the random draw, the animation — runs in your browser tab. Nothing is sent anywhere unless you choose to share the link yourself."),
+            ("Does spinning save or upload my list anywhere?", "Nothing is uploaded. Everything — the list, the random draw, the animation — runs in your browser. Saved lists, the current draft and the spin history live in this browser's local storage on your device. Nothing is sent anywhere unless you choose to share the link yourself."),
         ],
         related=["random-name-picker", "dice-roller", "team-generator"],
         workspace="""
@@ -52,7 +86,7 @@ TOOLS = [
         <div class="wheel-hub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg></div>
       </div>
     </div>
-    <div class="field">
+""" + SAVED_LISTS.format(p="sw") + """    <div class="field">
       <label for="sw-entries">Entries (one per line)</label>
       <textarea id="sw-entries" rows="6">Pizza
 Tacos
@@ -74,7 +108,7 @@ Ramen</textarea>
       <input type="text" id="sw-share-url" readonly aria-label="Shareable link for this wheel">
       <button type="button" class="btn-ghost" id="sw-copy-link">Copy link</button>
     </div>
-""",
+""" + HISTORY_PANEL.format(p="sw", noun="spins"),
     ),
     dict(
         slug="random-name-picker",
@@ -88,16 +122,17 @@ Ramen</textarea>
             "Click “Pick a name” and watch the names flicker before landing on the winner.",
             "Turn on “Remove picked name” to draw again without repeats — useful for going through a whole list in random order.",
             "Use “Copy link” to share this exact list with someone else.",
+            "Click “Save list” to keep the list on this device. Open the History panel to see who was already picked.",
         ],
         faq=[
             ("Does every name have an equal chance?", "Yes — the picker draws a single uniformly random index using crypto.getRandomValues across however many names you've entered, so every name has exactly a 1-in-N chance regardless of order or length."),
             ("Can I use this to draw an order for a whole group, one at a time?", "Yes — check “Remove picked name from the list” before picking. Each pick removes that name, so repeated picks work through the group in a fair random order."),
             ("Is there a limit to how many names I can add?", "No hard limit — add one name per line, as many as you need."),
-            ("Do the names get uploaded anywhere?", "No. The list stays in your browser tab. The only way it leaves your device is if you deliberately copy and share the link, which encodes the list in the URL itself."),
+            ("Do the names get uploaded anywhere?", "No. The list stays in your browser. Saved lists, the current draft and the pick history live in this browser's local storage on your device. The only way the list leaves your device is if you deliberately copy and share the link, which encodes the list in the URL itself."),
+            ("Can I save a list and come back to it later?", "Yes. Type a name such as “Period 3”, click “Save list”, and the list is stored in this browser. Pick it from the “Saved lists” menu on your next visit. The History panel lists your past picks and shows which names on the current list were already picked this week."),
         ],
         related=["spinner-wheel", "team-generator", "coin-flip"],
-        workspace="""
-    <div class="field">
+        workspace=SAVED_LISTS.format(p="np") + """    <div class="field">
       <label for="np-names">Names (one per line)</label>
       <textarea id="np-names" rows="6">Alex
 Jordan
@@ -119,7 +154,7 @@ Riley</textarea>
       <input type="text" id="np-share-url" readonly aria-label="Shareable link for this list">
       <button type="button" class="btn-ghost" id="np-copy-link">Copy link</button>
     </div>
-""",
+""" + HISTORY_PANEL.format(p="np", noun="picks"),
     ),
     dict(
         slug="dice-roller",
@@ -173,7 +208,7 @@ Riley</textarea>
       <input type="text" id="dr-share-url" readonly aria-label="Shareable link for this setup">
       <button type="button" class="btn-ghost" id="dr-copy-link">Copy link</button>
     </div>
-""",
+""" + HISTORY_PANEL.format(p="dr", noun="rolls"),
     ),
     dict(
         slug="coin-flip",
@@ -291,8 +326,7 @@ Riley</textarea>
             ("Can I send this exact split to my group?", "Yes — “Copy link” encodes your name list and team count into the URL. Anyone opening it can generate their own random split from the same list, or you can share a screenshot of the result."),
         ],
         related=["random-name-picker", "spinner-wheel", "random-number-generator"],
-        workspace="""
-    <div class="field">
+        workspace=SAVED_LISTS.format(p="tg") + """    <div class="field">
       <label for="tg-names">Names to split (one per line)</label>
       <textarea id="tg-names" rows="7">Alex
 Jordan
@@ -313,7 +347,7 @@ Drew</textarea>
       <input type="text" id="tg-share-url" readonly aria-label="Shareable link for this list">
       <button type="button" class="btn-ghost" id="tg-copy-link">Copy link</button>
     </div>
-""",
+""" + HISTORY_PANEL.format(p="tg", noun="splits"),
     ),
     dict(
         slug="tournament-bracket",
@@ -970,7 +1004,7 @@ PRIVACY_BODY = """        <h1>Privacy</h1>
         <p>Some tools let you build a "Copy link" URL that encodes your list or settings directly in the address, so you can send it to someone else. That data lives in the link itself &mdash; it is never stored on any server of ours. Only share a link if you're comfortable with whoever receives it seeing what's in it.</p>
 
         <h2>Local storage</h2>
-        <p>drawlots.net saves one small preference in your browser's local storage: your light/dark theme choice. It stays on your device and is never transmitted anywhere. You can clear it at any time by clearing this site's data in your browser settings.</p>
+        <p>drawlots.net saves a few things in your browser's local storage: your light/dark theme choice, the lists you save on the name picker, the spinner wheel and the team generator, the current draft of those lists, and the last 100 results of the name picker, the spinner wheel, the dice roller and the team generator. All of it stays on your device and is never transmitted anywhere. Use “Delete” and “Clear history” in the tools, or clear this site's data in your browser settings, to remove it.</p>
 
         <h2>Advertising</h2>
         <p>This site shows ads served by Google AdSense, which may use cookies to personalize ads based on your visits to this and other sites. You can control ad personalization through <a href="https://adssettings.google.com" rel="noopener">Google's Ad Settings</a>, and learn more about how Google uses data at <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">policies.google.com/technologies/partner-sites</a>.</p>
