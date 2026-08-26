@@ -78,7 +78,18 @@
         </div>
         <p>Paste in everyone's name, pick how many teams you need, and the group gets shuffled and split as evenly as possible — no more picking captains and going one by one.</p>
         <div class="workspace">
-
+    <div class="saved-lists">
+      <label for="tg-saved-select">Saved lists</label>
+      <div class="saved-lists-row">
+        <select id="tg-saved-select"><option value="">No saved lists yet</option></select>
+        <button type="button" class="btn-ghost" id="tg-delete-list" disabled>Delete</button>
+      </div>
+      <div class="saved-lists-row">
+        <input type="text" id="tg-list-name" maxlength="60" placeholder="Name this list, for example Period 3" aria-label="Name for the saved list">
+        <button type="button" class="btn-ghost" id="tg-save-list">Save list</button>
+      </div>
+      <p class="saved-lists-message" id="tg-saved-message" role="status"></p>
+    </div>
     <div class="field">
       <label for="tg-names">Names to split (one per line)</label>
       <textarea id="tg-names" rows="7">Alex
@@ -100,6 +111,18 @@ Drew</textarea>
       <input type="text" id="tg-share-url" readonly aria-label="Shareable link for this list">
       <button type="button" class="btn-ghost" id="tg-copy-link">Copy link</button>
     </div>
+    <section class="history" id="tg-history" aria-label="History">
+      <div class="history-head">
+        <h3>History <span class="history-count" id="tg-history-count"></span></h3>
+        <div class="history-actions">
+          <button type="button" class="btn-ghost btn-small" id="tg-history-copy" disabled>Copy history</button>
+          <button type="button" class="btn-ghost btn-small" id="tg-history-clear" disabled>Clear history</button>
+        </div>
+      </div>
+      <p class="history-note" id="tg-history-note"></p>
+      <p class="history-empty" id="tg-history-empty">No splits yet on this device. Every result lands here, and the last 100 stay after a reload.</p>
+      <ol class="history-list" id="tg-history-list"></ol>
+    </section>
         </div>
       </div>
     </section>

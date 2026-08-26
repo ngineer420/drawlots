@@ -1043,6 +1043,82 @@ textarea { min-height: 140px; resize: vertical; font-family: var(--font-mono); f
 }
 .share-row input[type="text"] { flex: 1 1 220px; font-family: var(--font-mono); font-size: 13px; }
 
+/* -------------------------------------------------------- saved lists ui */
+
+.saved-lists {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.saved-lists label { font-size: 13.5px; font-weight: 600; color: var(--text-muted); }
+.saved-lists-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.saved-lists-row select, .saved-lists-row input[type="text"] { flex: 1 1 200px; min-width: 0; background: var(--surface); }
+.saved-lists-message { font-size: 13.5px; color: var(--text-muted); margin: 0; }
+.saved-lists-message:empty { display: none; }
+
+/* ------------------------------------------------------------ history ui */
+
+.history { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border); }
+.history-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.history-head h3 { font-size: 15px; margin: 0; display: flex; align-items: center; gap: 8px; }
+.history-count {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+.history-count:empty { display: none; }
+.history-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn-small { font-size: 13px; padding: 7px 12px; }
+.history-note {
+  font-size: 13.5px;
+  color: var(--text);
+  background: hsl(from var(--lot-amber) h s l / 0.14);
+  border-left: 3px solid var(--lot-amber);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin: 0 0 10px;
+}
+.history-note:empty { display: none; }
+.history-empty { font-size: 13.5px; color: var(--text-muted); margin: 0; }
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.history-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  padding: 6px 10px;
+  background: var(--surface-2);
+  border-radius: 8px;
+}
+.history-entry { min-width: 0; overflow-wrap: anywhere; }
+.history-when { flex: 0 0 auto; font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+
 /* ----------------------------------------------------------- doc / 404 */
 
 .doc-page { padding: 50px 0 70px; }

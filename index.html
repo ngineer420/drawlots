@@ -157,6 +157,18 @@
         <div class="wheel-hub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg></div>
       </div>
     </div>
+    <div class="saved-lists">
+      <label for="sw-saved-select">Saved lists</label>
+      <div class="saved-lists-row">
+        <select id="sw-saved-select"><option value="">No saved lists yet</option></select>
+        <button type="button" class="btn-ghost" id="sw-delete-list" disabled>Delete</button>
+      </div>
+      <div class="saved-lists-row">
+        <input type="text" id="sw-list-name" maxlength="60" placeholder="Name this list, for example Period 3" aria-label="Name for the saved list">
+        <button type="button" class="btn-ghost" id="sw-save-list">Save list</button>
+      </div>
+      <p class="saved-lists-message" id="sw-saved-message" role="status"></p>
+    </div>
     <div class="field">
       <label for="sw-entries">Entries (one per line)</label>
       <textarea id="sw-entries" rows="6">Pizza
@@ -179,6 +191,18 @@ Ramen</textarea>
       <input type="text" id="sw-share-url" readonly aria-label="Shareable link for this wheel">
       <button type="button" class="btn-ghost" id="sw-copy-link">Copy link</button>
     </div>
+    <section class="history" id="sw-history" aria-label="History">
+      <div class="history-head">
+        <h3>History <span class="history-count" id="sw-history-count"></span></h3>
+        <div class="history-actions">
+          <button type="button" class="btn-ghost btn-small" id="sw-history-copy" disabled>Copy history</button>
+          <button type="button" class="btn-ghost btn-small" id="sw-history-clear" disabled>Clear history</button>
+        </div>
+      </div>
+      <p class="history-note" id="sw-history-note"></p>
+      <p class="history-empty" id="sw-history-empty">No spins yet on this device. Every result lands here, and the last 100 stay after a reload.</p>
+      <ol class="history-list" id="sw-history-list"></ol>
+    </section>
         </div>
         <p style="margin-top:16px;font-size:14px"><a href="/spinner-wheel/#how-it-works">Full guide &amp; FAQ for the Spinner Wheel &rarr;</a></p>
       </div>
@@ -191,7 +215,18 @@ Ramen</textarea>
         </div>
         <p>Paste in a list of names, one per line, and draw one at random — each name has an equal, cryptographically random chance. Good for raffles, picking who presents first, or settling an argument about who does the dishes.</p>
         <div class="workspace">
-
+    <div class="saved-lists">
+      <label for="np-saved-select">Saved lists</label>
+      <div class="saved-lists-row">
+        <select id="np-saved-select"><option value="">No saved lists yet</option></select>
+        <button type="button" class="btn-ghost" id="np-delete-list" disabled>Delete</button>
+      </div>
+      <div class="saved-lists-row">
+        <input type="text" id="np-list-name" maxlength="60" placeholder="Name this list, for example Period 3" aria-label="Name for the saved list">
+        <button type="button" class="btn-ghost" id="np-save-list">Save list</button>
+      </div>
+      <p class="saved-lists-message" id="np-saved-message" role="status"></p>
+    </div>
     <div class="field">
       <label for="np-names">Names (one per line)</label>
       <textarea id="np-names" rows="6">Alex
@@ -214,6 +249,18 @@ Riley</textarea>
       <input type="text" id="np-share-url" readonly aria-label="Shareable link for this list">
       <button type="button" class="btn-ghost" id="np-copy-link">Copy link</button>
     </div>
+    <section class="history" id="np-history" aria-label="History">
+      <div class="history-head">
+        <h3>History <span class="history-count" id="np-history-count"></span></h3>
+        <div class="history-actions">
+          <button type="button" class="btn-ghost btn-small" id="np-history-copy" disabled>Copy history</button>
+          <button type="button" class="btn-ghost btn-small" id="np-history-clear" disabled>Clear history</button>
+        </div>
+      </div>
+      <p class="history-note" id="np-history-note"></p>
+      <p class="history-empty" id="np-history-empty">No picks yet on this device. Every result lands here, and the last 100 stay after a reload.</p>
+      <ol class="history-list" id="np-history-list"></ol>
+    </section>
         </div>
         <p style="margin-top:16px;font-size:14px"><a href="/random-name-picker/#how-it-works">Full guide &amp; FAQ for the Random Name Picker &rarr;</a></p>
       </div>
@@ -258,6 +305,18 @@ Riley</textarea>
       <input type="text" id="dr-share-url" readonly aria-label="Shareable link for this setup">
       <button type="button" class="btn-ghost" id="dr-copy-link">Copy link</button>
     </div>
+    <section class="history" id="dr-history" aria-label="History">
+      <div class="history-head">
+        <h3>History <span class="history-count" id="dr-history-count"></span></h3>
+        <div class="history-actions">
+          <button type="button" class="btn-ghost btn-small" id="dr-history-copy" disabled>Copy history</button>
+          <button type="button" class="btn-ghost btn-small" id="dr-history-clear" disabled>Clear history</button>
+        </div>
+      </div>
+      <p class="history-note" id="dr-history-note"></p>
+      <p class="history-empty" id="dr-history-empty">No rolls yet on this device. Every result lands here, and the last 100 stay after a reload.</p>
+      <ol class="history-list" id="dr-history-list"></ol>
+    </section>
         </div>
         <p style="margin-top:16px;font-size:14px"><a href="/dice-roller/#how-it-works">Full guide &amp; FAQ for the Dice Roller &rarr;</a></p>
       </div>
@@ -346,7 +405,18 @@ Riley</textarea>
         </div>
         <p>Paste in everyone's name, pick how many teams you need, and the group gets shuffled and split as evenly as possible — no more picking captains and going one by one.</p>
         <div class="workspace">
-
+    <div class="saved-lists">
+      <label for="tg-saved-select">Saved lists</label>
+      <div class="saved-lists-row">
+        <select id="tg-saved-select"><option value="">No saved lists yet</option></select>
+        <button type="button" class="btn-ghost" id="tg-delete-list" disabled>Delete</button>
+      </div>
+      <div class="saved-lists-row">
+        <input type="text" id="tg-list-name" maxlength="60" placeholder="Name this list, for example Period 3" aria-label="Name for the saved list">
+        <button type="button" class="btn-ghost" id="tg-save-list">Save list</button>
+      </div>
+      <p class="saved-lists-message" id="tg-saved-message" role="status"></p>
+    </div>
     <div class="field">
       <label for="tg-names">Names to split (one per line)</label>
       <textarea id="tg-names" rows="7">Alex
@@ -368,6 +438,18 @@ Drew</textarea>
       <input type="text" id="tg-share-url" readonly aria-label="Shareable link for this list">
       <button type="button" class="btn-ghost" id="tg-copy-link">Copy link</button>
     </div>
+    <section class="history" id="tg-history" aria-label="History">
+      <div class="history-head">
+        <h3>History <span class="history-count" id="tg-history-count"></span></h3>
+        <div class="history-actions">
+          <button type="button" class="btn-ghost btn-small" id="tg-history-copy" disabled>Copy history</button>
+          <button type="button" class="btn-ghost btn-small" id="tg-history-clear" disabled>Clear history</button>
+        </div>
+      </div>
+      <p class="history-note" id="tg-history-note"></p>
+      <p class="history-empty" id="tg-history-empty">No splits yet on this device. Every result lands here, and the last 100 stay after a reload.</p>
+      <ol class="history-list" id="tg-history-list"></ol>
+    </section>
         </div>
         <p style="margin-top:16px;font-size:14px"><a href="/team-generator/#how-it-works">Full guide &amp; FAQ for the Team Generator &rarr;</a></p>
       </div>

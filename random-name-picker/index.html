@@ -78,7 +78,18 @@
         </div>
         <p>Paste in a list of names, one per line, and draw one at random — each name has an equal, cryptographically random chance. Good for raffles, picking who presents first, or settling an argument about who does the dishes.</p>
         <div class="workspace">
-
+    <div class="saved-lists">
+      <label for="np-saved-select">Saved lists</label>
+      <div class="saved-lists-row">
+        <select id="np-saved-select"><option value="">No saved lists yet</option></select>
+        <button type="button" class="btn-ghost" id="np-delete-list" disabled>Delete</button>
+      </div>
+      <div class="saved-lists-row">
+        <input type="text" id="np-list-name" maxlength="60" placeholder="Name this list, for example Period 3" aria-label="Name for the saved list">
+        <button type="button" class="btn-ghost" id="np-save-list">Save list</button>
+      </div>
+      <p class="saved-lists-message" id="np-saved-message" role="status"></p>
+    </div>
     <div class="field">
       <label for="np-names">Names (one per line)</label>
       <textarea id="np-names" rows="6">Alex
@@ -101,6 +112,18 @@ Riley</textarea>
       <input type="text" id="np-share-url" readonly aria-label="Shareable link for this list">
       <button type="button" class="btn-ghost" id="np-copy-link">Copy link</button>
     </div>
+    <section class="history" id="np-history" aria-label="History">
+      <div class="history-head">
+        <h3>History <span class="history-count" id="np-history-count"></span></h3>
+        <div class="history-actions">
+          <button type="button" class="btn-ghost btn-small" id="np-history-copy" disabled>Copy history</button>
+          <button type="button" class="btn-ghost btn-small" id="np-history-clear" disabled>Clear history</button>
+        </div>
+      </div>
+      <p class="history-note" id="np-history-note"></p>
+      <p class="history-empty" id="np-history-empty">No picks yet on this device. Every result lands here, and the last 100 stay after a reload.</p>
+      <ol class="history-list" id="np-history-list"></ol>
+    </section>
         </div>
       </div>
     </section>
@@ -114,6 +137,7 @@ Riley</textarea>
         <li>Click “Pick a name” and watch the names flicker before landing on the winner.</li>
         <li>Turn on “Remove picked name” to draw again without repeats — useful for going through a whole list in random order.</li>
         <li>Use “Copy link” to share this exact list with someone else.</li>
+        <li>Click “Save list” to keep the list on this device. Open the History panel to see who was already picked.</li>
           </ol>
         </div>
       </div>
@@ -130,7 +154,9 @@ Riley</textarea>
         <dt>Is there a limit to how many names I can add?</dt>
         <dd>No hard limit — add one name per line, as many as you need.</dd>
         <dt>Do the names get uploaded anywhere?</dt>
-        <dd>No. The list stays in your browser tab. The only way it leaves your device is if you deliberately copy and share the link, which encodes the list in the URL itself.</dd>
+        <dd>No. The list stays in your browser. Saved lists, the current draft and the pick history live in this browser's local storage on your device. The only way the list leaves your device is if you deliberately copy and share the link, which encodes the list in the URL itself.</dd>
+        <dt>Can I save a list and come back to it later?</dt>
+        <dd>Yes. Type a name such as “Period 3”, click “Save list”, and the list is stored in this browser. Pick it from the “Saved lists” menu on your next visit. The History panel lists your past picks and shows which names on the current list were already picked this week.</dd>
         </dl>
       </div>
     </section>
@@ -157,7 +183,7 @@ Riley</textarea>
     </div>
   </footer>
 <a href="https://erabb.it" class="erabbit-mark" aria-label="erabb.it"><img src="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐇</text></svg>" width="10" height="10" alt=""></a>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does every name have an equal chance?","acceptedAnswer":{"@type":"Answer","text":"Yes \u2014 the picker draws a single uniformly random index using crypto.getRandomValues across however many names you've entered, so every name has exactly a 1-in-N chance regardless of order or length."}},{"@type":"Question","name":"Can I use this to draw an order for a whole group, one at a time?","acceptedAnswer":{"@type":"Answer","text":"Yes \u2014 check \u201cRemove picked name from the list\u201d before picking. Each pick removes that name, so repeated picks work through the group in a fair random order."}},{"@type":"Question","name":"Is there a limit to how many names I can add?","acceptedAnswer":{"@type":"Answer","text":"No hard limit \u2014 add one name per line, as many as you need."}},{"@type":"Question","name":"Do the names get uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The list stays in your browser tab. The only way it leaves your device is if you deliberately copy and share the link, which encodes the list in the URL itself."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does every name have an equal chance?","acceptedAnswer":{"@type":"Answer","text":"Yes \u2014 the picker draws a single uniformly random index using crypto.getRandomValues across however many names you've entered, so every name has exactly a 1-in-N chance regardless of order or length."}},{"@type":"Question","name":"Can I use this to draw an order for a whole group, one at a time?","acceptedAnswer":{"@type":"Answer","text":"Yes \u2014 check \u201cRemove picked name from the list\u201d before picking. Each pick removes that name, so repeated picks work through the group in a fair random order."}},{"@type":"Question","name":"Is there a limit to how many names I can add?","acceptedAnswer":{"@type":"Answer","text":"No hard limit \u2014 add one name per line, as many as you need."}},{"@type":"Question","name":"Do the names get uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The list stays in your browser. Saved lists, the current draft and the pick history live in this browser's local storage on your device. The only way the list leaves your device is if you deliberately copy and share the link, which encodes the list in the URL itself."}},{"@type":"Question","name":"Can I save a list and come back to it later?","acceptedAnswer":{"@type":"Answer","text":"Yes. Type a name such as \u201cPeriod 3\u201d, click \u201cSave list\u201d, and the list is stored in this browser. Pick it from the \u201cSaved lists\u201d menu on your next visit. The History panel lists your past picks and shows which names on the current list were already picked this week."}}]}</script>
   <script src="/assets/random.js"></script>
   <script src="/assets/tools.js"></script>
   <script src="/assets/app.js"></script>
