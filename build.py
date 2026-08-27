@@ -700,7 +700,10 @@ def head(title, description, canonical_path, json_ld, include_ads=True):
   <meta property="og:title" content="{title}">
   <meta property="og:description" content="{description}">
   <meta property="og:url" content="{canonical}">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="{site}/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{title}">
   <meta name="twitter:description" content="{description}">
   <link rel="stylesheet" href="/assets/style.css">
@@ -711,6 +714,7 @@ def head(title, description, canonical_path, json_ld, include_ads=True):
         title=title,
         description=description,
         canonical=canonical,
+        site=SITE,
         favicon=FAVICON,
         json_ld=json_ld,
         adsense=ADSENSE if include_ads else "",
