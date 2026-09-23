@@ -16,6 +16,8 @@ BOTH "<slug>/index.html" (the true clean path, trailing slash) AND
 """
 import datetime
 import os
+import subprocess
+import re
 import json
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -769,12 +771,27 @@ def write(path, content):
 
 
 def lastmod(url_path):
-    """The YYYY-MM-DD mtime of the file the server serves for this URL."""
+    """The day the file this URL serves last changed, as YYYY-MM-DD.
+
+    The date of the last commit that touched the file, not its mtime. A fresh
+    clone gives every file the same mtime, and this generator writes every page
+    on every run. Neither number is the day the page last changed. Where git
+    cannot answer, the mtime is what is left.
+    """
     rel = url_path.lstrip("/")
     if rel == "" or rel.endswith("/"):
         rel += "index.html"
-    stamp = os.path.getmtime(os.path.join(ROOT, rel))
-    return datetime.date.fromtimestamp(stamp).isoformat()
+    full = os.path.join(ROOT, rel)
+    try:
+        out = subprocess.run(
+            ["git", "log", "-1", "--format=%ad", "--date=short", "--", full],
+            cwd=ROOT, capture_output=True, text=True, timeout=20)
+        date = out.stdout.strip()
+        if out.returncode == 0 and re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+            return date
+    except Exception:
+        pass
+    return datetime.date.fromtimestamp(os.path.getmtime(full)).isoformat()
 
 
 def write_clean(slug, content):
