@@ -14,12 +14,14 @@ with the correct "text/html" content type. So every tool/legal page ships as
 BOTH "<slug>/index.html" (the true clean path, trailing slash) AND
 "<slug>.html" (a flat, real .html alias, also correctly text/html).
 """
+import datetime
 import os
+import subprocess
+import re
 import json
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SITE = "https://drawlots.net"
-TODAY = "2026-07-18"
 
 # --------------------------------------------------- shared workspace parts --
 
@@ -670,8 +672,33 @@ def chrome(current):
     return "\n".join([SKIP_LINK, header(), toolbar(current)])
 
 
+# ------------------------------------------------------------ peer sites --
+# The portfolio cross-link block (ngineer420.github.io#13). Four sibling
+# sites, chosen because a visitor here plausibly wants one of them next: a
+# notepad, a clock, printable paper and a QR tool. The link text is each
+# site's own meta description, so the promise on the link is the promise on
+# the page it lands on.
+#
+# It goes INSIDE <footer>, above the existing tag line and links, and the
+# erabb.it mark stays exactly where it was — after </footer>, a direct body
+# child. Adding peers beside that mark, never instead of it.
+
+PEER_SITES = """    <div class="wrap peer-wrap">
+      <nav class="peer-sites" aria-label="Related tools">
+        <span class="peer-sites-label">Related tools</span>
+        <ul>
+          <li><a href="https://blanknotepad.com/">A blank notepad that autosaves</a> <span class="peer-domain">blanknotepad.com</span></li>
+          <li><a href="https://clocklab.net/">Timers, stopwatch and world clock</a> <span class="peer-domain">clocklab.net</span></li>
+          <li><a href="https://paperprintouts.com/">Printable graph, lined and staff paper</a> <span class="peer-domain">paperprintouts.com</span></li>
+          <li><a href="https://qrmint.net/">QR codes, generate and scan</a> <span class="peer-domain">qrmint.net</span></li>
+        </ul>
+      </nav>
+    </div>"""
+
+
 def footer():
     return """  <footer class="site-footer">
+{peers}
     <div class="wrap">
       <p class="footer-tag">drawlots.net &mdash; nine ways to leave it to chance, entirely in your browser.</p>
       <ul class="footer-links">
@@ -681,10 +708,10 @@ def footer():
       </ul>
     </div>
   </footer>
-{erabbit}""".format(erabbit=ERABBIT)
+{erabbit}""".format(peers=PEER_SITES, erabbit=ERABBIT)
 
 
-def head(title, description, canonical_path, json_ld, include_ads=True):
+def head(title, description, canonical_path, json_ld, breadcrumb="", include_ads=True):
     canonical = SITE + canonical_path
     return """<head>
   {no_flash}
@@ -708,7 +735,7 @@ def head(title, description, canonical_path, json_ld, include_ads=True):
   <meta name="twitter:description" content="{description}">
   <link rel="stylesheet" href="/assets/style.css">
   <script type="application/ld+json">{json_ld}</script>
-  {adsense}
+{breadcrumb}  {adsense}
 </head>""".format(
         no_flash=NO_FLASH,
         title=title,
@@ -717,6 +744,7 @@ def head(title, description, canonical_path, json_ld, include_ads=True):
         site=SITE,
         favicon=FAVICON,
         json_ld=json_ld,
+        breadcrumb=breadcrumb,
         adsense=ADSENSE if include_ads else "",
     )
 
@@ -730,8 +758,40 @@ def write(path, content):
     d = os.path.dirname(full)
     if d:
         os.makedirs(d, exist_ok=True)
+    # Skip the write when the bytes are unchanged. This is what makes a
+    # file's mtime mean "when this page last changed" instead of "when the
+    # generator last ran", which is what the sitemap reads for <lastmod>.
+    # It also keeps a no-op rebuild out of the working tree.
+    if os.path.exists(full):
+        with open(full, "r", encoding="utf-8") as f:
+            if f.read() == content:
+                return
     with open(full, "w", encoding="utf-8") as f:
         f.write(content)
+
+
+def lastmod(url_path):
+    """The day the file this URL serves last changed, as YYYY-MM-DD.
+
+    The date of the last commit that touched the file, not its mtime. A fresh
+    clone gives every file the same mtime, and this generator writes every page
+    on every run. Neither number is the day the page last changed. Where git
+    cannot answer, the mtime is what is left.
+    """
+    rel = url_path.lstrip("/")
+    if rel == "" or rel.endswith("/"):
+        rel += "index.html"
+    full = os.path.join(ROOT, rel)
+    try:
+        out = subprocess.run(
+            ["git", "log", "-1", "--format=%ad", "--date=short", "--", full],
+            cwd=ROOT, capture_output=True, text=True, timeout=20)
+        date = out.stdout.strip()
+        if out.returncode == 0 and re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+            return date
+    except Exception:
+        pass
+    return datetime.date.fromtimestamp(os.path.getmtime(full)).isoformat()
 
 
 def write_clean(slug, content):
@@ -741,6 +801,35 @@ def write_clean(slug, content):
 
 def jstr(s):
     return json.dumps(s)
+
+
+def breadcrumb_ld(trail):
+    """A BreadcrumbList script tag for one page, or "" for the root.
+
+    `trail` is a list of (name, url_path) pairs, outermost first, Home
+    included. Every page below the root gets one and the root gets none,
+    because a crumb trail of one item says nothing a crawler did not
+    already know.
+
+    The two members of a twin pair (`slug.html` and `slug/index.html`) are
+    written from one string, so both carry the same trail pointing at the
+    directory URL — which is what both of them canonicalise to.
+    """
+    if len(trail) < 2:
+        return ""
+    items = ",".join(
+        '{{"@type":"ListItem","position":{i},"name":{n},"item":{u}}}'.format(
+            i=i, n=jstr(name), u=jstr(SITE + url)
+        )
+        for i, (name, url) in enumerate(trail, start=1)
+    )
+    ld = '{{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{items}]}}'.format(
+        items=items
+    )
+    return '  <script type="application/ld+json">{ld}</script>\n'.format(ld=ld)
+
+
+HOME_CRUMB = ("Home", "/")
 
 
 # ---------------------------------------------------------- hero signature --
@@ -857,8 +946,11 @@ def tool_page(tool):
         scripts=scripts_tail(),
     )
 
+    # Two items, not three: a tool page sits straight off the root and no
+    # section hub stands between them.
+    crumbs = breadcrumb_ld([HOME_CRUMB, (tool["name"], canonical_path)])
     html = "<!doctype html>\n<html lang=\"en\">\n" + head(
-        title, tool["description"], canonical_path, json_ld
+        title, tool["description"], canonical_path, json_ld, breadcrumb=crumbs
     ) + "\n" + body + "\n</html>\n"
     write_clean(tool["slug"], html)
 
@@ -994,7 +1086,8 @@ def legal_page(slug, title_text, body_html):
 {footer}
 {scripts}
 </body>""".format(header=chrome(None), content=body_html, footer=footer(), scripts=scripts_tail())
-    html = "<!doctype html>\n<html lang=\"en\">\n" + head(title, description, canonical_path, json_ld) + "\n" + body + "\n</html>\n"
+    crumbs = breadcrumb_ld([HOME_CRUMB, (title_text, canonical_path)])
+    html = "<!doctype html>\n<html lang=\"en\">\n" + head(title, description, canonical_path, json_ld, breadcrumb=crumbs) + "\n" + body + "\n</html>\n"
     write_clean(slug, html)
 
 
@@ -1056,7 +1149,8 @@ def not_found_page():
 {footer}
   <script src="/assets/app.js"></script>
 </body>""".format(header=chrome(None), footer=footer())
-    html = "<!doctype html>\n<html lang=\"en\">\n" + head(title, description, "/404.html", json_ld, include_ads=False) + "\n" + body + "\n</html>\n"
+    crumbs = breadcrumb_ld([HOME_CRUMB, ("Page not found", "/404.html")])
+    html = "<!doctype html>\n<html lang=\"en\">\n" + head(title, description, "/404.html", json_ld, breadcrumb=crumbs, include_ads=False) + "\n" + body + "\n</html>\n"
     write("404.html", html)
 
 
@@ -1174,7 +1268,12 @@ def article_page(article):
         header=chrome(None), title=article["title"], published=article["published"],
         content=article["body"], footer=footer(), scripts=scripts_tail(),
     )
-    html = "<!doctype html>\n<html lang=\"en\">\n" + head(title, article["description"], canonical_path, json_ld) + "\n" + body + "\n</html>\n"
+    # Three items here, because /articles/ is a real hub page and not an
+    # invented tier.
+    crumbs = breadcrumb_ld([
+        HOME_CRUMB, ("Articles", "/articles/"), (article["title"], canonical_path),
+    ])
+    html = "<!doctype html>\n<html lang=\"en\">\n" + head(title, article["description"], canonical_path, json_ld, breadcrumb=crumbs) + "\n" + body + "\n</html>\n"
     write(slug + "/index.html", html)
     write(slug + ".html", html)
 
@@ -1209,7 +1308,8 @@ def article_hub():
 {footer}
 {scripts}
 </body>""".format(header=chrome(None), items="\n".join(items), footer=footer(), scripts=scripts_tail())
-    html = "<!doctype html>\n<html lang=\"en\">\n" + head(title, description, canonical_path, json_ld) + "\n" + body + "\n</html>\n"
+    crumbs = breadcrumb_ld([HOME_CRUMB, ("Articles", canonical_path)])
+    html = "<!doctype html>\n<html lang=\"en\">\n" + head(title, description, canonical_path, json_ld, breadcrumb=crumbs) + "\n" + body + "\n</html>\n"
     write("articles/index.html", html)
 
 
@@ -1233,8 +1333,12 @@ sitemap_urls = (
     + [clean_url("privacy"), clean_url("terms"), "/articles/"]
     + ["/articles/" + a["slug"] + "/" for a in ARTICLES]
 )
+# <lastmod> comes from the file each URL serves, not from a constant. The
+# date was frozen at 2026-07-18 on every entry, which told a crawler nothing.
+# write() above leaves an unchanged page's mtime alone, so a page that did
+# not change keeps the date it earned.
 sitemap_entries = "\n".join(
-    "  <url><loc>{}{}</loc><lastmod>{}</lastmod></url>".format(SITE, u, TODAY)
+    "  <url><loc>{}{}</loc><lastmod>{}</lastmod></url>".format(SITE, u, lastmod(u))
     for u in sitemap_urls
 )
 sitemap = (

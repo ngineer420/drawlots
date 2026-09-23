@@ -1173,6 +1173,59 @@ textarea { min-height: 140px; resize: vertical; font-family: var(--font-mono); f
 .footer-links a { text-decoration: none; font-size: 13.5px; color: var(--text-muted); font-weight: 600; }
 .footer-links a:hover { color: var(--accent); }
 
+/* the related-tools block: four sibling sites, above the tag line and inside
+   the same footer rule. It reads as the footer's first band rather than a
+   bolted-on link farm — the label is the footer's own muted 13.5px UI type,
+   each row leads with the promise and follows with the domain, and the domain
+   is the only thing here in the mono face, which is what tells a reader at a
+   glance that the link leaves this site.
+   Its own .wrap, because .site-footer .wrap is a space-between flex row built
+   for the tag line, and a nav is one item in it. */
+.site-footer .peer-wrap { display: block; margin-bottom: 22px; }
+.peer-sites-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.peer-sites ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 2px 24px;
+}
+.peer-sites li { min-width: 0; }
+.peer-sites a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--text-muted);
+}
+.peer-sites a:hover { color: var(--accent); }
+.peer-domain {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  opacity: .8;
+  white-space: nowrap;
+}
+@media (max-width: 719px) {
+  /* One column, and the domain drops under its own link rather than
+     squeezing the promise into an ellipsis. */
+  .peer-sites ul { grid-template-columns: 1fr; gap: 0; }
+  .peer-sites li { display: flex; flex-direction: column; }
+  .peer-sites a { min-height: 40px; }
+  .peer-domain { margin: -6px 0 8px; }
+}
+
 /* the erabbit mark: last thing on the page, flush to the corner, no dead
    space below or to its right. Must stay a direct body child AFTER
    </footer> — never nested inside the footer or any padded wrapper. */
