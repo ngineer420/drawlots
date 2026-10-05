@@ -673,9 +673,9 @@ def chrome(current):
 
 
 # ------------------------------------------------------------ peer sites --
-# The portfolio cross-link block (ngineer420.github.io#13). Four sibling
-# sites, chosen because a visitor here plausibly wants one of them next: a
-# notepad, a clock, printable paper and a QR tool. The link text is each
+# The portfolio cross-link block (ngineer420.github.io#13). One sibling
+# site, chosen because a visitor here plausibly wants it next: a clock and
+# timer for the draw, the round or the rota. The link text is each
 # site's own meta description, so the promise on the link is the promise on
 # the page it lands on.
 #
@@ -687,10 +687,7 @@ PEER_SITES = """    <div class="wrap peer-wrap">
       <nav class="peer-sites" aria-label="Related tools">
         <span class="peer-sites-label">Related tools</span>
         <ul>
-          <li><a href="https://blanknotepad.com/">A blank notepad that autosaves</a> <span class="peer-domain">blanknotepad.com</span></li>
           <li><a href="https://clocklab.net/">Timers, stopwatch and world clock</a> <span class="peer-domain">clocklab.net</span></li>
-          <li><a href="https://paperprintouts.com/">Printable graph, lined and staff paper</a> <span class="peer-domain">paperprintouts.com</span></li>
-          <li><a href="https://qrmint.net/">QR codes, generate and scan</a> <span class="peer-domain">qrmint.net</span></li>
         </ul>
       </nav>
     </div>"""
