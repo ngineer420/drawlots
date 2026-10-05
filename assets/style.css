@@ -1173,6 +1173,29 @@ textarea { min-height: 140px; resize: vertical; font-family: var(--font-mono); f
 .footer-links a { text-decoration: none; font-size: 13.5px; color: var(--text-muted); font-weight: 600; }
 .footer-links a:hover { color: var(--accent); }
 
+/* the contact line: one route to a person, on every page. It takes its own
+   row in the footer's space-between flex, because the tag line and the link
+   list are a pair and a third item would squeeze both. Footer type, footer
+   colour, and the address itself picks up the accent so the only interactive
+   word in the sentence looks interactive. */
+.footer-contact {
+  flex: 0 0 100%;
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 13.5px;
+}
+.footer-contact a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  /* A mail address is a tap target on a phone, so give it the same 34px reach
+     the peer links have rather than a 13.5px line of text. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+}
+.footer-contact a:hover { text-decoration: underline; }
+
 /* the related-tools block: four sibling sites, above the tag line and inside
    the same footer rule. It reads as the footer's first band rather than a
    bolted-on link farm — the label is the footer's own muted 13.5px UI type,

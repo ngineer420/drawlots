@@ -693,6 +693,39 @@ PEER_SITES = """    <div class="wrap peer-wrap">
     </div>"""
 
 
+# ---------------------------------------------------------------- contact --
+# One route to a person, on every page.
+#
+# Every character of the href and of the link text is written as a decimal
+# numeric character reference. The HTML parser decodes them while it parses, so
+# the anchor ends up with a real mailto: URL, keeps its place in the tab order,
+# and is read out as the plain address by a screen reader. Neither "@" nor the
+# string "mailto:hello" appears anywhere in the bytes a scraper downloads.
+#
+# No JavaScript. A link that needs script to work fails for the reader who has
+# script off and still works for the scraper that runs it, which is the wrong
+# way round.
+#
+# The address is written once, in plain text, and encoded here. The privacy
+# page reads the same two strings, so the policy and the footer cannot
+# disagree.
+
+
+def ncr(text):
+    """Every character of `text` as a decimal numeric character reference."""
+    return "".join("&#%d;" % ord(c) for c in text)
+
+
+CONTACT_ADDRESS = "hello@goodbotbad.bot"
+CONTACT_HREF = ncr("mailto:" + CONTACT_ADDRESS)
+CONTACT_LABEL = ncr(CONTACT_ADDRESS)
+
+CONTACT_LINE = (
+    '      <p class="footer-contact">Questions or a problem with a tool? '
+    '<a href="{href}">{label}</a></p>'
+).format(href=CONTACT_HREF, label=CONTACT_LABEL)
+
+
 def footer():
     return """  <footer class="site-footer">
 {peers}
@@ -703,9 +736,10 @@ def footer():
         <li><a href="/privacy/">Privacy</a></li>
         <li><a href="/terms/">Terms</a></li>
       </ul>
+{contact}
     </div>
   </footer>
-{erabbit}""".format(peers=PEER_SITES, erabbit=ERABBIT)
+{erabbit}""".format(peers=PEER_SITES, contact=CONTACT_LINE, erabbit=ERABBIT)
 
 
 def head(title, description, canonical_path, json_ld, breadcrumb="", include_ads=True):
@@ -767,18 +801,90 @@ def write(path, content):
         f.write(content)
 
 
+def dirty_paths():
+    """Every path git reports as changed or untracked, repo-relative, posix.
+
+    One call for the whole repo. A call per file would run `git status` once
+    per URL in the sitemap, which is the same answer forty times over.
+
+    `--porcelain -z` writes NUL-separated entries and never quotes or escapes a
+    path, so a file name with a space or a non-ASCII character comes through
+    intact. The status code occupies columns 0 and 1, column 2 is a space, and
+    the path starts at column 3. A rename entry is two NUL-separated fields,
+    "old" then "new"; the new path is the one on disk, so take it and drop the
+    old one.
+    """
+    try:
+        out = subprocess.run(["git", "status", "--porcelain", "-z"],
+                             cwd=ROOT, capture_output=True, text=True, timeout=20)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if out.returncode != 0:
+        return None
+    fields = out.stdout.split("\0")
+    paths = set()
+    i = 0
+    while i < len(fields):
+        entry = fields[i]
+        i += 1
+        if not entry:
+            continue
+        code, path = entry[:2], entry[3:]
+        if "R" in code or "C" in code:
+            # "old\0new": the following field is the path that exists now.
+            if i < len(fields):
+                path = fields[i]
+                i += 1
+        if path:
+            paths.add(path)
+    return paths
+
+
+# Read once, on the first call, and reused. The order matters: this module
+# writes every page first and builds the sitemap last, so the set has to be
+# read AFTER the pages are on disk. A page this run rewrote is dirty only from
+# the moment write() returns. Reading the set at import time would ask git
+# about a tree the build has not touched yet and miss every page it changes.
+_DIRTY_CACHE = []
+
+
+def dirty_set():
+    if not _DIRTY_CACHE:
+        _DIRTY_CACHE.append(dirty_paths())
+    return _DIRTY_CACHE[0]
+
+
 def lastmod(url_path):
     """The day the file this URL serves last changed, as YYYY-MM-DD.
 
-    The date of the last commit that touched the file, not its mtime. A fresh
-    clone gives every file the same mtime, and this generator writes every page
-    on every run. Neither number is the day the page last changed. Where git
-    cannot answer, the mtime is what is left.
+    Three sources, in this order:
+
+        today            if the file is dirty or untracked right now
+        git log -1       otherwise
+        mtime            only where git cannot answer at all
+
+    The dirty test is the half that was missing. The sitemap is written BEFORE
+    the commit that ships it, so `git log -1` on a file this run just edited
+    returns the PREVIOUS commit's day. The moment the commit lands, that file's
+    last commit is the new one, a rebuild moves the date forward, and a check
+    on a clean tree fails with nothing actually changed.
+
+    Dating a dirty file today closes that loop. The file is dirty during the
+    build, so the sitemap says today. The commit lands, the file is clean, and
+    its last commit is today, so a rebuild says today again and the sitemap
+    still matches.
+
+    The mtime is never the primary source. `git pull` rewrites mtimes, so an
+    mtime-based check fails the next day with every URL moved forward and
+    nothing changed.
     """
     rel = url_path.lstrip("/")
     if rel == "" or rel.endswith("/"):
         rel += "index.html"
     full = os.path.join(ROOT, rel)
+    dirty = dirty_set()
+    if dirty is not None and rel in dirty:
+        return datetime.date.today().isoformat()
     try:
         out = subprocess.run(
             ["git", "log", "-1", "--format=%ad", "--date=short", "--", full],
@@ -1104,7 +1210,7 @@ PRIVACY_BODY = """        <h1>Privacy</h1>
         <p>This site shows ads served by Google AdSense, which may use cookies to personalize ads based on your visits to this and other sites. You can control ad personalization through <a href="https://adssettings.google.com" rel="noopener">Google's Ad Settings</a>, and learn more about how Google uses data at <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">policies.google.com/technologies/partner-sites</a>.</p>
 
         <h2>Contact</h2>
-        <p>Questions about this policy can be raised via the <a href="https://erabb.it" rel="noopener">erabb.it</a> portfolio site linked in the corner of every page here.</p>"""
+        <p>Questions about this policy can be sent to <a href="{href}">{label}</a>, which is also the contact link in the footer of every page here.</p>""".format(href=CONTACT_HREF, label=CONTACT_LABEL)
 
 TERMS_BODY = """        <h1>Terms</h1>
         <p>drawlots.net's tools are provided free, as-is, for anyone to use.</p>
